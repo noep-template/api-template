@@ -11,7 +11,7 @@ import {
   UpdateAddressApi,
 } from '@web-template/types';
 import { validationAddress } from '@web-template/validations';
-import { apiError } from '@web-template/errors';
+import { errorMessage } from '@web-template/errors';
 import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class AddressService {
@@ -50,7 +50,7 @@ export class AddressService {
     try {
       await this.addressRepository.delete(id);
     } catch (error) {
-      throw new BadRequestException(apiError('address').NOT_FOUND, id);
+      throw new BadRequestException(errorMessage.api('address').NOT_FOUND, id);
     }
   }
 
@@ -62,7 +62,7 @@ export class AddressService {
       });
       return address;
     } catch (error) {
-      throw new NotFoundException(apiError('address').NOT_FOUND, _id);
+      throw new NotFoundException(errorMessage.api('address').NOT_FOUND, _id);
     }
   }
 }

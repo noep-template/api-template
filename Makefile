@@ -6,7 +6,7 @@ help:
 
 #-- PROJECT
 start:  ## Start project
-	yarn start
+	yarn start:dev
 
 #-- DATABASE
 db.create: ## Create database

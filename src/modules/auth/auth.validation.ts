@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
-import { apiError } from '@web-template/errors';
+import { errorMessage } from '@web-template/errors';
 
 @Injectable()
 export class AuthValidation {
@@ -14,7 +14,9 @@ export class AuthValidation {
       const { password: __password, ...result } = user;
       return result;
     }
-    throw new NotFoundException(apiError('user').NOT_FOUND_OR_WRONG_PASSWORD);
+    throw new NotFoundException(
+      errorMessage.api('user').NOT_FOUND_OR_WRONG_PASSWORD,
+    );
   }
 
   async comparePassword(

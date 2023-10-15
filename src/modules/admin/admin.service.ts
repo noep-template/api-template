@@ -8,7 +8,7 @@ import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
-import { apiError } from '@web-template/errors';
+import { errorMessage } from '@web-template/errors';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -38,7 +38,7 @@ export class AdminService {
         return admin;
       }
     } catch (error) {
-      throw new BadRequestException(apiError('admin').NOT_FOUND);
+      throw new BadRequestException(errorMessage.api('admin').NOT_FOUND);
     }
   }
 
@@ -46,7 +46,7 @@ export class AdminService {
     if (user.isAdmin) {
       if (user.id === id)
         throw new BadRequestException(
-          apiError('admin').CANNOT_CHANGE_OWN_STATUS,
+          errorMessage.api('admin').CANNOT_CHANGE_OWN_STATUS,
         );
       try {
         const newAdmin = await this.usersService.getUser(id);
@@ -55,10 +55,10 @@ export class AdminService {
         });
         return updatedUser.raw;
       } catch (error) {
-        throw new BadRequestException(apiError('admin').NOT_FOUND);
+        throw new BadRequestException(errorMessage.api('admin').NOT_FOUND);
       }
     } else {
-      throw new UnauthorizedException(apiError('admin').NOT_ADMIN);
+      throw new UnauthorizedException(errorMessage.api('admin').NOT_ADMIN);
     }
   }
 
@@ -66,7 +66,7 @@ export class AdminService {
     if (user.isAdmin) {
       return await this.usersService.getUser(id);
     } else {
-      throw new UnauthorizedException(apiError('admin').NOT_ADMIN);
+      throw new UnauthorizedException(errorMessage.api('admin').NOT_ADMIN);
     }
   }
 
@@ -78,7 +78,7 @@ export class AdminService {
     if (user.isAdmin) {
       return await this.usersService.updateUser(body, id);
     } else {
-      throw new UnauthorizedException(apiError('admin').NOT_ADMIN);
+      throw new UnauthorizedException(errorMessage.api('admin').NOT_ADMIN);
     }
   }
 
@@ -86,7 +86,7 @@ export class AdminService {
     if (user.isAdmin) {
       return await this.usersService.deleteUser(id);
     } else {
-      throw new UnauthorizedException(apiError('admin').NOT_ADMIN);
+      throw new UnauthorizedException(errorMessage.api('admin').NOT_ADMIN);
     }
   }
 }

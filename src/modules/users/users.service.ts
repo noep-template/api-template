@@ -13,7 +13,7 @@ import { Repository } from 'typeorm';
 import { AddressService } from '../address/address.service';
 import { User } from './user.entity';
 import { validationUser } from '@web-template/validations';
-import { apiError } from '@web-template/errors';
+import { errorMessage } from '@web-template/errors';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class UsersService {
         select: ['id', 'lastName', 'firstName', 'email', 'isAdmin', 'address'],
       });
     } catch (error) {
-      throw new BadRequestException(apiError('user').NOT_FOUND);
+      throw new BadRequestException(errorMessage.api('user').NOT_FOUND);
     }
   }
 
@@ -41,7 +41,7 @@ export class UsersService {
       });
       return user;
     } catch (error) {
-      throw new NotFoundException(apiError('user').NOT_FOUND, _id);
+      throw new NotFoundException(errorMessage.api('user').NOT_FOUND, _id);
     }
   }
 
@@ -56,7 +56,7 @@ export class UsersService {
       });
       return user;
     } catch (error) {
-      throw new NotFoundException(apiError('user').NOT_FOUND, email);
+      throw new NotFoundException(errorMessage.api('user').NOT_FOUND, email);
     }
   }
 
@@ -70,7 +70,7 @@ export class UsersService {
         address: addressesCreated,
       });
     } catch (error) {
-      throw new BadRequestException(apiError('user').NOT_CREATED);
+      throw new BadRequestException(errorMessage.api('user').NOT_CREATED);
     }
   }
 
@@ -102,7 +102,7 @@ export class UsersService {
       });
       return await this.getUser(id);
     } catch (error) {
-      throw new BadRequestException(apiError('user').NOT_UPDATED, id);
+      throw new BadRequestException(errorMessage.api('user').NOT_UPDATED, id);
     }
   }
 
@@ -112,7 +112,7 @@ export class UsersService {
       await this.addressService.deleteAddress(user.address.id);
       await this.usersRepository.delete(user.id);
     } catch (error) {
-      throw new BadRequestException(apiError('user').NOT_FOUND, id);
+      throw new BadRequestException(errorMessage.api('user').NOT_FOUND, id);
     }
   }
 }

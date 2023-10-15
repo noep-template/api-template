@@ -9,7 +9,7 @@ import { AuthLoginApi, AuthRegisterApi } from '@web-template/types';
 import { UsersService } from '../users/users.service';
 import { AuthValidation } from './auth.validation';
 import { validationUser } from '@web-template/validations';
-import { apiError } from '@web-template/errors';
+import { errorMessage } from '@web-template/errors';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +29,9 @@ export class AuthService {
     }
     const user = await this.userRepository.findOneByEmail(body.email);
     if (!user)
-      throw new NotFoundException(apiError('user').NOT_FOUND_OR_WRONG_PASSWORD);
+      throw new NotFoundException(
+        errorMessage.api('user').NOT_FOUND_OR_WRONG_PASSWORD,
+      );
     await this.authValidation.validateUser(body.email, body.password);
     const payload = { email: user.email, id: user.id };
     return {
@@ -46,7 +48,8 @@ export class AuthService {
       throw new BadRequestException(e.errors);
     }
     const possibleUser = await this.userRepository.findOneByEmail(body.email);
-    if (possibleUser) throw new BadRequestException(apiError('user').EXIST);
+    if (possibleUser)
+      throw new BadRequestException(errorMessage.api('user').EXIST);
     const { email, password } = body;
     const encryptedPassword = await this.encryptPassword(password);
     const createdUser = await this.userRepository.createUser({
