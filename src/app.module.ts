@@ -10,6 +10,8 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AddressModule } from './modules/address/address.module';
+import { FileUploadModule } from './modules/file-upload/file-upload.module';
+import { MediaModule } from './modules/media/media.module';
 
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { AddressModule } from './modules/address/address.module';
       entities: [join(__dirname, '**', '*.entity.{ts,js}')],
     }),
     MulterModule.register({
-      dest: './public/files',
+      dest: process.env.FILES_PATH,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -33,6 +35,8 @@ import { AddressModule } from './modules/address/address.module';
     AuthModule,
     AdminModule,
     AddressModule,
+    FileUploadModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

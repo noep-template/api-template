@@ -20,6 +20,16 @@ export class AddressService {
     private addressRepository: Repository<Address>,
   ) {}
 
+  formatAddress(address: Address): AddressDto {
+    return {
+      id: address.id,
+      street: address.street,
+      city: address.city,
+      zipCode: address.zipCode,
+      country: address.country,
+    };
+  }
+
   async createAddress(address: CreateAddressApi): Promise<AddressDto> {
     try {
       await validationAddress.create.validate(address, {
@@ -31,10 +41,7 @@ export class AddressService {
     }
   }
 
-  async updateAddress(
-    address: UpdateAddressApi,
-    id: string,
-  ): Promise<AddressDto> {
+  async updateAddress(address: UpdateAddressApi, id: string): Promise<Address> {
     try {
       await validationAddress.update.validate(address, {
         abortEarly: false,
@@ -54,13 +61,12 @@ export class AddressService {
     }
   }
 
-  async getAddress(_id: string): Promise<AddressDto> {
+  async getAddress(_id: string): Promise<Address> {
     try {
-      const address = await this.addressRepository.findOne({
-        select: ['id', 'street', 'city', 'zipCode', 'country'],
-        where: [{ id: _id }],
+      const address = await this.addressRepository.findOneBy({
+        id: _id,
       });
-      return address;
+      return this.formatAddress(address);
     } catch (error) {
       throw new NotFoundException(errorMessage.api('address').NOT_FOUND, _id);
     }

@@ -22,8 +22,9 @@ export class UsersController {
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  getAll() {
-    return this.service.getUsers();
+  async getAll() {
+    const users = await this.service.getUsers();
+    return users.map((user) => this.service.formatUser(user));
   }
 
   @Get('me')
@@ -31,15 +32,16 @@ export class UsersController {
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
   me(@GetCurrentUser() user: User) {
-    return this.service.me(user);
+    return this.service.formatUser(user);
   }
 
   @Patch('me')
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  update(@Body() body: UpdateUserApi, @GetCurrentUser() user: User) {
-    return this.service.updateUser(body, user.id);
+  async update(@Body() body: UpdateUserApi, @GetCurrentUser() user: User) {
+    const userUpdated = await this.service.updateUser(body, user.id);
+    return this.service.formatUser(userUpdated);
   }
 
   @Delete('me')

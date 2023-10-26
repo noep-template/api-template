@@ -11,12 +11,14 @@ import { User } from './user.entity';
 import { AuthMiddleware } from '../auth/auth.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { AddressModule } from '../address/address.module';
+import { MediaModule } from '../media/media.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     forwardRef(() => AddressModule),
     forwardRef(() => AuthModule),
+    forwardRef(() => MediaModule),
   ],
   providers: [UsersService],
   controllers: [UsersController],

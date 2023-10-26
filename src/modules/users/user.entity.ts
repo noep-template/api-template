@@ -6,6 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Address } from '../address/address.entity';
+import { Media } from '../media/media.entity';
 
 @Entity()
 export class User {
@@ -30,4 +31,8 @@ export class User {
   @OneToOne(() => Address, { cascade: true, eager: true, nullable: true })
   @JoinColumn()
   address: Address;
+
+  @OneToOne(() => Media, { cascade: true, eager: true, nullable: true })
+  @JoinColumn()
+  profilePicture: Media;
 }
