@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MediaType } from '@web-template/types';
+import { MediaType } from '@/types';
 
 @Injectable()
 export class FileUploadService {

@@ -1,20 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { UsersModule } from './modules/users/users.module';
-import { AuthModule } from './modules/auth/auth.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { AdminModule } from './modules/admin/admin.module';
-import { AddressModule } from './modules/address/address.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { FileUploadModule } from './modules/file-upload/file-upload.module';
 import { MediaModule } from './modules/media/media.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -26,15 +27,15 @@ import { MediaModule } from './modules/media/media.module';
       entities: [join(__dirname, '**', '*.entity.{ts,js}')],
     }),
     MulterModule.register({
-      dest: process.env.FILES_PATH,
+      dest: './public/files',
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
+      rootPath: join(__dirname, '..', '../public'),
     }),
-    UsersModule,
+
+    UserModule,
     AuthModule,
     AdminModule,
-    AddressModule,
     FileUploadModule,
     MediaModule,
   ],

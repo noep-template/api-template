@@ -9,13 +9,13 @@ import { AuthModule } from '../auth/auth.module';
 import { MediaModule } from '../media/media.module';
 import { FileUploadService } from './file-upload.service';
 import { FileUploadController } from './file-upload.controller';
-import { UsersModule } from '../users/users.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
     forwardRef(() => AuthModule),
     forwardRef(() => MediaModule),
-    forwardRef(() => UsersModule),
+    forwardRef(() => UserModule),
   ],
   providers: [FileUploadService],
   controllers: [FileUploadController],

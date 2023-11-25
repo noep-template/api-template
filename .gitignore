@@ -6,6 +6,7 @@
 /src/migrations
 packacge-lock.json
 yarn.lock
+public/files
 
 # Logs
 logs

@@ -9,14 +9,14 @@ import { AuthMiddleware } from '../auth/auth.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { MediaService } from './media.service';
 import { Media } from './media.entity';
-import { UsersModule } from '../users/users.module';
+import { UserModule } from '../user/user.module';
 import { FileUploadModule } from '../file-upload/file-upload.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Media]),
     forwardRef(() => AuthModule),
-    forwardRef(() => UsersModule),
+    forwardRef(() => UserModule),
     forwardRef(() => FileUploadModule),
   ],
   providers: [MediaService],

@@ -1,21 +1,22 @@
 version: '3.8'
- 
+
 networks:
- default:
-   external: false
-   name: api-postgres
- 
+  app-network:
+    driver: bridge
+
 services:
-  api-postgres:
-   image: "postgres:13-alpine"
-   command: postgres -c 'max_connections=1000'
-   restart: always
-   container_name: api-postgres
-   environment:
-     - POSTGRES_PASSWORD=postgres
-     - POSTGRES_USER=postgres
-     - POSTGRES_DB=api-postgres_db
-   volumes:
-     - ./db_data:/var/lib/postgresql/data
-   ports:
-     - "5430:5432"
+  api-template-db-dev:
+    image: 'postgres:14.5-alpine'
+    command: postgres -c 'max_connections=1000'
+    restart: always
+    container_name: api-template-db-dev
+    environment:
+      - POSTGRES_PASSWORD=${TYPEORM_PASSWORD}
+      - POSTGRES_USER=${TYPEORM_USERNAME}
+      - POSTGRES_DB=${TYPEORM_DATABASE}
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - app-network

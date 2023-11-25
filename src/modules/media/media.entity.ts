@@ -1,11 +1,9 @@
-import { MediaType } from '@web-template/types';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { MediaType } from '../../types';
+import { Column, Entity } from 'typeorm';
+import { BaseEntity } from '../base.entity';
 
 @Entity()
-export class Media {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Media extends BaseEntity {
   @Column()
   url: string;
 

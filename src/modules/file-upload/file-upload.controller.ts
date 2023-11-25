@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 /* eslint-disable @typescript-eslint/no-empty-function */
+import { errorMessage } from '@/errors';
 import {
   BadRequestException,
   Controller,
+  Get,
   HttpCode,
   Inject,
   Post,
@@ -14,10 +16,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuid } from 'uuid';
-import { GetCurrentUser } from '../../decorators/get-current-user.decorator';
 import { MediaService } from '../media/media.service';
-import { errorMessage } from '@web-template/errors';
-import { User } from '../users/user.entity';
 
 export function replaceAll(str: string, find: string, replace: string) {
   return str.replace(new RegExp(find, 'g'), replace);
@@ -50,7 +49,7 @@ export class FileUploadController {
       }),
       limits: { fileSize: 104857600 }, // 100Mb:
       fileFilter: (req, file, callback) => {
-        const allowedExtensions = /\.(jpg|jpeg|png|pdf)$/;
+        const allowedExtensions = /\.(jpg|jpeg|png|pdf|webp)$/;
         const extension = allowedExtensions.exec(file.originalname);
         if (!extension) {
           return callback(
@@ -63,10 +62,13 @@ export class FileUploadController {
     }),
   )
   @HttpCode(201)
-  async upload(
-    @UploadedFile() file: Express.Multer.File,
-    @GetCurrentUser() user: User,
-  ) {
-    return await this.mediaService.createMedia(file, user);
+  async upload(@UploadedFile() file: Express.Multer.File) {
+    return await this.mediaService.createMedia(file);
+  }
+
+  @Get('/populate')
+  @HttpCode(200)
+  async test() {
+    return await this.mediaService.populateMedias();
   }
 }

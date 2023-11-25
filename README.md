@@ -94,7 +94,7 @@ Nous allons faire un cas pratique en ajoutant un module Address.
   country: string;
 ```
 
-4. Dans le fichier `@web-template/types/api/Address.ts` ajouter les propriétés suivantes :
+4. Dans le fichier `@/types/api/Address.ts` ajouter les propriétés suivantes :
 
 ```typescript
 export interface CreateAddressApi {
@@ -112,7 +112,7 @@ export interface UpdateAddressApi {
 }
 ```
 
-5.  Dans le fichier `@web-template/types/dto/Address.ts` ajouter les propriétés suivantes :
+5.  Dans le fichier `@/types/dto/Address.ts` ajouter les propriétés suivantes :
 
 ```typescript
 export interface AddressDto {
@@ -124,7 +124,7 @@ export interface AddressDto {
 }
 ```
 
-6. Le fichier `@web-template/errors/errors.ts` permet de gérer les erreurs pour le front, ajouter les propriétés suivantes :
+6. Le fichier `@/errors/errors.ts` permet de gérer les erreurs pour le front, ajouter les propriétés suivantes :
 
 ```typescript
 export enum AddressError {
@@ -140,11 +140,11 @@ export enum AddressError {
 }
 ```
 
-1. Le fichier `@web-template/validations/address.ts` permet de gérer toutes les validations, ajouter les propriétés suivantes :
+1. Le fichier `@/validations/address.ts` permet de gérer toutes les validations, ajouter les propriétés suivantes :
 
 ```typescript
-import { AddressError } from '@web-template/errors/errors';
-import { CreateAddressApi, UpdateAddressApi } from '@web-template/types';
+import { AddressError } from '@/errors/errors';
+import { CreateAddressApi, UpdateAddressApi } from '@/types';
 import * as yup from 'yup';
 
 const create = yup.object<CreateAddressApi>().shape({
@@ -214,9 +214,9 @@ import {
   AddressDto,
   CreateAddressApi,
   UpdateAddressApi,
-} from '@web-template/types';
-import { AddressError, GenericsError } from '@web-template/errors/errors';
-import { validationAddress } from '@web-template/validations';
+} from '@/types';
+import { AddressError, GenericsError } from '@/errors/errors';
+import { validationAddress } from '@/validations';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -287,7 +287,7 @@ import {
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ApiKeyGuard } from 'src/decorators/api-key.decorator';
 import { AddressService } from './address.service';
-import { CreateAddressApi } from '@web-template/types';
+import { CreateAddressApi } from '@/types';
 
 @Controller('address')
 export class AddressController {
@@ -337,7 +337,7 @@ export class AddressController {
 address: Address;
 ```
 
-- Nous allons mettre à jours les types de l'entity, dans le fichier `@web-template/types/api/Auth.ts`, `@web-template/types/api/User.ts` et `@web-template/types/dto/User.ts`, ajouter la propriété suivante :
+- Nous allons mettre à jours les types de l'entity, dans le fichier `@/types/api/Auth.ts`, `@/types/api/User.ts` et `@/types/dto/User.ts`, ajouter la propriété suivante :
 
 ```typescript
 address?: CreateAddressApi; // ou UpdateAddressApi ou AddressDto
