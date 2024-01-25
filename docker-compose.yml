@@ -5,18 +5,21 @@ networks:
     driver: bridge
 
 services:
-  api-template-db-dev:
+  iggy-db-dev:
     image: 'postgres:14.5-alpine'
     command: postgres -c 'max_connections=1000'
     restart: always
-    container_name: api-template-db-dev
+    container_name: iggy-db-dev
     environment:
       - POSTGRES_PASSWORD=${TYPEORM_PASSWORD}
       - POSTGRES_USER=${TYPEORM_USERNAME}
       - POSTGRES_DB=${TYPEORM_DATABASE}
     volumes:
-      - ./db_data:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     networks:
       - app-network
+
+volumes:
+  db:

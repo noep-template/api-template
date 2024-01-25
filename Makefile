@@ -10,8 +10,6 @@ start:  ## Start project
 
 #-- DATABASE
 db.create: ## Create database
-	@echo "Removing old db_data..."
-	@make db.delete
 	@echo "Starting Docker Compose..."
 	@docker-compose up -d
 	@echo "Sleeping for 5 seconds..."
@@ -64,9 +62,7 @@ migration: ## Generate migration and push on server
 	make migration.generate && make migration.run
 
 migration.generate: ## Generate migration 
-	@read -p "Entrer le nom de la migration (default: migration): " name; \
-	name=$${name:-migration}; \
-	npx typeorm-ts-node-esm migration:generate ./src/migrations/$$name -d ./ormconfig.ts
+	npx typeorm-ts-node-esm migration:generate ./src/migrations/migration -d ./ormconfig.ts
 
 
 migration.run: ## Push migration on server

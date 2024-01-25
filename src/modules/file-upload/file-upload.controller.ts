@@ -28,7 +28,6 @@ export class FileUploadController {
     @Inject(MediaService)
     private mediaService: MediaService,
   ) {}
-  // TUTORIAL : https://gabrieltanner.org/blog/nestjs-file-uploading-using-multer
 
   @Post('/')
   @ApiBearerAuth()

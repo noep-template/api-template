@@ -1,29 +1,46 @@
-name: Docker Image CI
+name: Docker Image CI/CD
 
 on:
   push:
-    branches: ['main']
+    branches:
+      - main
   pull_request:
-    branches: ['main']
+    branches:
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
+    env:
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      REMOTE_DIR: '~/iggy-prod'
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
     steps:
-      - uses: actions/checkout@v3
-      - name: docker login
-        env:
-          DOCKER_USER: ${{secrets.DOCKER_USER}}
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-          DOCKER_REPO: ${{secrets.DOCKER_REPO}}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Docker login
+        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+      - name: Build and push Docker image
         run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-      - name: Build the Docker image
-        run: docker buildx build . --file Dockerfile --tag ${{secrets.DOCKER_REPO}}:latest
+          docker buildx build . --file Dockerfile --tag $DOCKER_REPO:latest
+          docker tag $DOCKER_REPO:latest $DOCKER_USER/$DOCKER_REPO:latest
+          docker push $DOCKER_USER/$DOCKER_REPO:latest
 
-      - name: Tag the Docker image
-        run: docker tag ${{secrets.DOCKER_REPO}}:latest ${{secrets.DOCKER_USER}}/${{secrets.DOCKER_REPO}}:latest
+      - name: Deploy to production
+        run: |
+          echo "$SSH_PRIVATE_KEY" > ssh_key.pem  # Écrit la clé SSH dans un fichier temporaire
+          chmod 600 ssh_key.pem  # Assurez-vous des bonnes permissions sur le fichier de clé
 
-      - name: Docker push
-        run: docker push ${{secrets.DOCKER_USER}}/${{secrets.DOCKER_REPO}}:latest
+          # Utilisez le chemin relatif pour le fichier de clé SSH et le fichier temporaire
+          ssh -o StrictHostKeyChecking=no -i ./ssh_key.pem -p 1111 "$SSH_USER@$SSH_HOST" "cd "$REMOTE_DIR" && docker compose down && docker pull $DOCKER_USER/$DOCKER_REPO && docker compose up -d && echo 'Deployment completed successfully.'"
+
+          # Supprimez le fichier temporaire après utilisation
+          rm -f ./ssh_key.pem
