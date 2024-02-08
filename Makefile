@@ -19,7 +19,7 @@ db.create: ## Create database
 
 
 db.delete: ## Delete database
-	docker-compose down && rm -rf ./db_data && rm -rf ./src/migrations && rm -rf ./public/files/*
+	docker compose down && docker volume rm -f iggy-api_db && rm -rf ./public/files
 
 db.start: ## Start database
 	docker start iggy-db
@@ -35,7 +35,9 @@ db.clean: ## Clean database
 	@echo "Sleeping for 5 seconds..."
 	@sleep 5
 	@echo "Running make migration..."
-	@yarn migrate
+	@yarn migrate:run
+	@echo "Start server..."
+	@make start
 
 #-- TYPEORM
 module.create: ## Create module
@@ -56,14 +58,3 @@ module.create: ## Create module
 	touch ./src/validations/$$name.ts; \
 	echo "import { Create$${upperName}Api, Update$${upperName}Api } from 'src/types';\nimport * as yup from 'yup';\n\nconst create: yup.ObjectSchema<Create$${upperName}Api> = yup.object({});\n\nconst update: yup.ObjectSchema<Update$${upperName}Api> = yup.object({});\n\nexport const $${name}Validation = {\n  create,\n  update,\n};" >> ./src/validations/$$name.ts; \
 	echo "export * from './$${name}';" >> ./src/validations/index.ts; \
-
-#-- MIGRATION
-migration: ## Generate migration and push on server
-	make migration.generate && make migration.run
-
-migration.generate: ## Generate migration 
-	npx typeorm-ts-node-esm migration:generate ./src/migrations/migration -d ./ormconfig.ts
-
-
-migration.run: ## Push migration on server
-	npx typeorm-ts-node-esm migration:run -d ./ormconfig.ts

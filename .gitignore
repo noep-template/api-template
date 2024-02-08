@@ -3,7 +3,6 @@
 /node_modules
 /db_data
 .env
-/src/migrations
 packacge-lock.json
 yarn.lock
 public/files
