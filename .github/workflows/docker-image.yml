@@ -40,7 +40,7 @@ jobs:
           chmod 600 ssh_key.pem  # Assurez-vous des bonnes permissions sur le fichier de clé
 
           # Utilisez le chemin relatif pour le fichier de clé SSH et le fichier temporaire
-          ssh -o StrictHostKeyChecking=no -i ./ssh_key.pem -p 1111 "$SSH_USER@$SSH_HOST" "cd "$REMOTE_DIR" && docker compose down && docker pull $DOCKER_USER/$DOCKER_REPO && docker compose up -d && echo 'Deployment completed successfully.'"
+          ssh -o StrictHostKeyChecking=no -i ./ssh_key.pem -p 1111 "$SSH_USER@$SSH_HOST" "cd "$REMOTE_DIR" && docker compose down && docker pull $DOCKER_USER/$DOCKER_REPO && docker image prune -f && make create && echo 'Deployment completed successfully.'"
 
           # Supprimez le fichier temporaire après utilisation
           rm -f ./ssh_key.pem
