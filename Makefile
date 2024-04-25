@@ -6,7 +6,7 @@ help:
 
 #-- PROJECT
 start:  ## Start project
-	yarn start:dev
+	yarn watch
 
 #-- DATABASE
 db.create: ## Create database
@@ -15,17 +15,16 @@ db.create: ## Create database
 	@echo "Sleeping for 5 seconds..."
 	@sleep 5
 	@echo "Running make migration..."
-	@make migration
-
+	@yarn migrate
 
 db.delete: ## Delete database
-	docker compose down && docker volume rm -f iggy-api_db && rm -rf ./public/files
+	docker compose down && docker volume rm -f api-template_db && rm -rf ./public/files && rm -rf ./src/migrations/
 
 db.start: ## Start database
-	docker start iggy-db
+	docker start template-db
 	
 db.stop: ## Stop database
-	docker stop iggy-db
+	docker stop template-db
 
 db.clean: ## Clean database
 	@echo "Removing old db_data..."
@@ -35,7 +34,7 @@ db.clean: ## Clean database
 	@echo "Sleeping for 5 seconds..."
 	@sleep 5
 	@echo "Running make migration..."
-	@yarn migrate:run
+	@yarn migrate
 	@echo "Start server..."
 	@make start
 
@@ -58,3 +57,22 @@ module.create: ## Create module
 	touch ./src/validations/$$name.ts; \
 	echo "import { Create$${upperName}Api, Update$${upperName}Api } from 'src/types';\nimport * as yup from 'yup';\n\nconst create: yup.ObjectSchema<Create$${upperName}Api> = yup.object({});\n\nconst update: yup.ObjectSchema<Update$${upperName}Api> = yup.object({});\n\nexport const $${name}Validation = {\n  create,\n  update,\n};" >> ./src/validations/$$name.ts; \
 	echo "export * from './$${name}';" >> ./src/validations/index.ts; \
+
+#-- DOCKER
+docker.build: ## Build docker image
+	docker build --platform=linux/amd64 -t template-api:latest .  
+
+docker.tag: ## Tag docker image
+	docker tag template-api:latest noephilippe/template-api:latest
+
+docker.push: ## Push docker image
+	docker push noephilippe/template-api:latest
+
+docker.new: ## Build, tag and push docker image
+	make docker.build
+	make docker.tag
+	make docker.push
+
+#-- DEPLOY
+deploy: ## Deploy on server
+	ansible-playbook -i inventory.ini deploy.yml

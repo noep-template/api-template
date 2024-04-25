@@ -7,6 +7,7 @@ import {
   Controller,
   HttpCode,
   Inject,
+  NotFoundException,
   Post,
   UseGuards,
   forwardRef,
@@ -49,7 +50,7 @@ export class AuthController {
       });
       const user = await this.userService.getOneByEmail(body.email);
       if (!user.isAdmin)
-        throw new BadRequestException(errorMessage.api('user').NOT_ADMIN);
+        throw new NotFoundException(errorMessage.api('user').NOT_ADMIN);
       return await this.authService.login(body);
     } catch (e) {
       throw new BadRequestException(e);

@@ -1,0 +1,49 @@
+---
+- name: Déploiement de l'application avec Docker Compose
+  hosts: TODO:Replace #exemple: ubuntu@template.com
+
+  tasks:
+    - name: Créer le répertoire sakana-san s'il n'existe pas
+      become_user: ubuntu
+      file:
+        path: ~/template
+        state: directory
+      register: create_directory_result
+      ignore_errors: yes
+
+    - name: Copier le fichier docker-compose.api.yml
+      become_user: ubuntu
+      copy:
+        src: docker-compose.api.yml
+        dest: ~/template/docker-compose.api.yml
+      register: copy_docker_compose_result
+      ignore_errors: yes
+
+    - name: Copier le fichier .env.production
+      become_user: ubuntu
+      copy:
+        src: .env.production
+        dest: ~/template/.env.production
+      register: copy_env_result
+      ignore_errors: yes
+
+    - name: Arrêter le service Docker
+      become_user: ubuntu
+      command: docker compose -f ~/template/docker-compose.api.yml down
+      ignore_errors: yes
+
+    - name: Pull de l'image Docker
+      become_user: ubuntu
+      command: docker pull TODO:Replace #exemple: noephilippe/template-api:latest
+      ignore_errors: yes
+
+    - name: Démarrer Docker Compose
+      become_user: ubuntu
+      command: docker compose -f ~/template/docker-compose.api.yml up -d
+      register: docker_compose_result
+      ignore_errors: yes
+
+    - name: 'Nettoyage des images Docker'
+      become_user: ubuntu
+      command: 'docker image prune -f'
+      ignore_errors: yes

@@ -9,7 +9,10 @@ const password = yup
   .matches(/[a-z]/, errorMessage.fields('password').NO_LETTER)
   .matches(/[A-Z]/, errorMessage.fields('password').NO_UPPERCASE)
   .matches(/[0-9]/, errorMessage.fields('password').NO_DIGIT)
-  .matches(/[!@#$%^&*]/, errorMessage.fields('password').NO_SPECIAL_CHARACTER)
+  .matches(
+    /[!@#$%^&*€\-,.+'"=?]/,
+    errorMessage.fields('password').NO_SPECIAL_CHARACTER,
+  )
   .matches(/^[^\s]*$/, errorMessage.fields('password').HAS_SPACES);
 
 export const genericsValidation = {

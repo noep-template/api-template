@@ -17,6 +17,9 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuid } from 'uuid';
 import { MediaService } from '../media/media.service';
+import * as sharp from 'sharp';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 export function replaceAll(str: string, find: string, replace: string) {
   return str.replace(new RegExp(find, 'g'), replace);
@@ -62,10 +65,32 @@ export class FileUploadController {
   )
   @HttpCode(201)
   async upload(@UploadedFile() file: Express.Multer.File) {
-    return await this.mediaService.createMedia(file);
+    if (!file.mimetype.startsWith('image')) {
+      throw new BadRequestException(errorMessage.api('file').INVALID_FORMAT);
+    }
+
+    const imageData = await fs.readFile(file.path);
+    const compressedImageBuffer = await sharp(imageData)
+      .resize({ width: 800 })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const fileNameWithoutExtension = path.parse(file.filename).name;
+
+    const webpFileName = `${fileNameWithoutExtension}.webp`;
+    const webpFilePath = `./public/files/${webpFileName}`;
+    await fs.writeFile(webpFilePath, compressedImageBuffer);
+    await fs.unlink(file.path);
+
+    return await this.mediaService.createMedia({
+      ...file,
+      buffer: compressedImageBuffer,
+      filename: webpFileName,
+      path: webpFilePath,
+    });
   }
 
-  @Get('/populate')
+  @Get('populate')
   @HttpCode(200)
   async test() {
     return await this.mediaService.populateMedias();
