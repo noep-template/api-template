@@ -3,7 +3,7 @@
   hosts: TODO:Replace #exemple: ubuntu@template.com
 
   tasks:
-    - name: Créer le répertoire sakana-san s'il n'existe pas
+    - name: Créer le répertoire template s'il n'existe pas
       become_user: ubuntu
       file:
         path: ~/template

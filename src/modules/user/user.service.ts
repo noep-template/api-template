@@ -110,18 +110,18 @@ export class UserService {
         body.profilePicture &&
         (await this.mediaService.getMediaById(body.profilePicture));
 
-      await this.userRepository.update(id, {
-        email: body.email ?? user.email,
-        firstName: body.firstName ?? user.firstName,
-        lastName: body.lastName ?? user.lastName,
+      const userUpdated = await this.userRepository.save({
+        ...user,
+        firstName: body.firstName ?? null,
+        lastName: body.lastName ?? null,
+        profilePicture: profilePictureMedia ?? null,
+        email: body.email ?? null,
         updatedAt: new Date(),
-        profilePicture: profilePictureMedia ?? user.profilePicture,
       });
-
       if (profilePictureMedia && user.profilePicture) {
         await this.mediaService.deleteMedia(user.profilePicture.id);
       }
-      return await this.getOneById(id);
+      return userUpdated;
     } catch (error) {
       console.log(error);
       throw new BadRequestException(error);

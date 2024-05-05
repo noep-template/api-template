@@ -1,5 +1,5 @@
 import { errorMessage } from '@/errors';
-import { AuthLoginApi, RegisterApi, UpdateUserApi } from '@/types';
+import { AuthLoginApi, RegisterApi, UpdateUserApi } from '@/types/api';
 import * as yup from 'yup';
 import { genericsValidation } from './generics';
 
@@ -12,16 +12,19 @@ const update: yup.ObjectSchema<UpdateUserApi> = yup.object({
     .string()
     .min(1, errorMessage.fields('firstName').REQUIRED)
     .optional()
+    .transform((value) => (value === '' ? undefined : value))
     .default(undefined),
   lastName: yup
     .string()
     .min(1, errorMessage.fields('lastName').REQUIRED)
     .optional()
+    .transform((value) => (value === '' ? undefined : value))
     .default(undefined),
   profilePicture: yup
     .string()
     .min(1, errorMessage.fields('profilePicture').REQUIRED)
     .optional()
+    .transform((value) => (value === '' ? undefined : value))
     .default(undefined),
 });
 
