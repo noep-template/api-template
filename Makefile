@@ -46,9 +46,24 @@ install:
 # Configuration du template
 setup:
 	@echo "🚀 Configuration du template..."
-	@if [ -f "scripts/setup-template.sh" ]; then \
+	@echo "📝 Veuillez fournir les informations suivantes:"
+	@read -p "Nom du projet (obligatoire): " project_name; \
+	read -p "Description du projet (optionnel): " project_description; \
+	read -p "Nom de l'auteur (optionnel): " author_name; \
+	read -p "Email de l'auteur (optionnel): " author_email; \
+	if [ -f "scripts/setup-template.sh" ]; then \
 		chmod +x scripts/setup-template.sh; \
-		./scripts/setup-template.sh; \
+		args="--name \"$$project_name\""; \
+		if [ -n "$$project_description" ]; then \
+			args="$$args --description \"$$project_description\""; \
+		fi; \
+		if [ -n "$$author_name" ]; then \
+			args="$$args --author \"$$author_name\""; \
+		fi; \
+		if [ -n "$$author_email" ]; then \
+			args="$$args --email \"$$author_email\""; \
+		fi; \
+		eval "./scripts/setup-template.sh $$args"; \
 	else \
 		echo "❌ Script de configuration non trouvé"; \
 		exit 1; \
@@ -137,17 +152,17 @@ restore:
 # Migrations
 migrate:
 	@echo "🔄 Exécution des migrations..."
-	yarn run migrate:run
+	yarn migrate:run
 
 # Génération de migration
 migrate-gen:
 	@echo "📝 Génération d'une migration..."
-	yarn run migrate:generate
+	yarn migrate:generate
 
 # Affichage des migrations
 migrate-show:
 	@echo "📋 Affichage des migrations..."
-	yarn run migrate:show
+	yarn migrate:show
 
 # Création de module
 module.create: ## Create module
@@ -213,7 +228,7 @@ cleanup-backups:
 	fi
 
 # Installation complète (pour nouveaux projets)
-install-full: install setup docker-up migrate
+install-full: install setup docker-up migrate-gen migrate 
 	@echo "🎉 Installation complète terminée!"
 	@echo "📋 Prochaines étapes:"
 	@echo "1. Configurer le fichier .env"

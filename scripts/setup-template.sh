@@ -92,39 +92,41 @@ echo "🔧 Mise à jour des fichiers..."
 # Mettre à jour package.json
 if [ -f "package.json" ]; then
     echo "📦 Mise à jour package.json..."
-    sed -i "s/\"name\": \"api-template\"/\"name\": \"$PROJECT_NAME\"/" package.json
-    sed -i "s/\"description\": \"Template API NestJS avec authentification, upload de fichiers et base de données PostgreSQL\"/\"description\": \"$PROJECT_DESCRIPTION\"/" package.json
-    sed -i "s/\"author\": \"\"/\"author\": \"$AUTHOR_NAME <$AUTHOR_EMAIL>\"/" package.json
+    sed -i '' "s/\"name\": \"api-template\"/\"name\": \"$PROJECT_NAME\"/" package.json
+    sed -i '' "s/\"description\": \"Template API NestJS avec authentification, upload de fichiers et base de données PostgreSQL\"/\"description\": \"$PROJECT_DESCRIPTION\"/" package.json
+    sed -i '' "s/\"author\": \"\"/\"author\": \"$AUTHOR_NAME <$AUTHOR_EMAIL>\"/" package.json
 fi
 
 # Mettre à jour docker-compose.api.yml
 if [ -f "docker-compose.api.yml" ]; then
     echo "🐳 Mise à jour docker-compose.api.yml..."
-    sed -i "s/template-api/${PROJECT_NAME}-api/g" docker-compose.api.yml
-    sed -i "s/template-db/${PROJECT_NAME}-db/g" docker-compose.api.yml
-    sed -i "s/template-network/${PROJECT_NAME}-network/g" docker-compose.api.yml
-    sed -i "s/template-api:${SHA}/${PROJECT_NAME}-api:${SHA}/g" docker-compose.api.yml
+    sed -i '' "s/gigjam-api/${PROJECT_NAME}-api/g" docker-compose.api.yml
+    sed -i '' "s/gigjam-db/${PROJECT_NAME}-db/g" docker-compose.api.yml
+    sed -i '' "s/template-network/${PROJECT_NAME}-network/g" docker-compose.api.yml
+    sed -i '' "s/gigjam-api:${SHA}/${PROJECT_NAME}-api:${SHA}/g" docker-compose.api.yml
 fi
 
 # Mettre à jour les scripts
 echo "📜 Mise à jour des scripts..."
-find scripts/ -name "*.sh" -type f -exec sed -i "s/template-api/${PROJECT_NAME}-api/g" {} \;
-find scripts/ -name "*.sh" -type f -exec sed -i "s/template-db/${PROJECT_NAME}-db/g" {} \;
-find scripts/ -name "*.sh" -type f -exec sed -i "s/template_backup/${PROJECT_NAME}_backup/g" {} \;
+find scripts/ -name "*.sh" -type f -exec sed -i '' "s/gigjam-api/${PROJECT_NAME}-api/g" {} \;
+find scripts/ -name "*.sh" -type f -exec sed -i '' "s/gigjam-db/${PROJECT_NAME}-db/g" {} \;
+find scripts/ -name "*.sh" -type f -exec sed -i '' "s/gigjam_backup/${PROJECT_NAME}_backup/g" {} \;
 
 # Mettre à jour le workflow GitHub Actions
 if [ -f ".github/workflows/deploy.yml" ]; then
     echo "⚙️  Mise à jour du workflow GitHub Actions..."
-    sed -i "s/template-api/${PROJECT_NAME}-api/g" .github/workflows/deploy.yml
-    sed -i "s/~/template-api/~/$(echo $PROJECT_NAME | tr '-' '_')/g" .github/workflows/deploy.yml
+    sed -i '' "s/gigjam-api/${PROJECT_NAME}-api/g" .github/workflows/deploy.yml
+    sed -i '' "s|~/gigjam-api|~/$(echo $PROJECT_NAME | tr '-' '_')|g" .github/workflows/deploy.yml
 fi
 
 # Mettre à jour le README
 if [ -f "README.md" ]; then
     echo "📖 Mise à jour du README..."
-    sed -i "s/Template API NestJS/${PROJECT_NAME^} API/" README.md
-    sed -i "s/template-api/${PROJECT_NAME}-api/g" README.md
-    sed -i "s/template_db/${PROJECT_NAME}_db/g" README.md
+    # Capitaliser la première lettre du nom du projet
+    PROJECT_NAME_CAPITALIZED=$(echo "$PROJECT_NAME" | sed 's/^./\U&/')
+    sed -i '' "s/Template API NestJS/${PROJECT_NAME_CAPITALIZED} API/" README.md
+    sed -i '' "s/gigjam-api/${PROJECT_NAME}-api/g" README.md
+    sed -i '' "s/template_db/${PROJECT_NAME}_db/g" README.md
 fi
 
 # Créer le fichier .env
