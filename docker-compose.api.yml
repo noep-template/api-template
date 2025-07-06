@@ -6,7 +6,7 @@ networks:
 
 services:
   template-api:
-    image: TODO:Replace #exemple: noephilippe/template-api:latest
+    image: ${GHCR_REGISTRY}/${OWNER_LC}/template-api:${SHA}
     container_name: template-api
     restart: always
     env_file: .env

@@ -1,44 +1,155 @@
+# Makefile pour Template API
+.PHONY: help install setup dev build test clean docker-up docker-down backup restore deploy
+
+# Variables
+PROJECT_NAME ?= template-api
+DOCKER_COMPOSE_FILE = docker-compose.yml
+
+# Afficher l'aide
 help:
-	@echo "Liste des commandes disponibles :"
-	@grep -E '^[1-9a-zA-Z_-]+(\.[1-9a-zA-Z_-]+)?:.*?## .*$$|(^#--)' $(MAKEFILE_LIST) \
-	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m %-43s\033[0m %s\n", $$1, $$2}' \
-	| sed -e 's/\[32m #-- /[33m/'
+	@echo "🚀 Template API - Commandes disponibles:"
+	@echo ""
+	@echo "📦 Installation et configuration:"
+	@echo "  make install     - Installer les dépendances"
+	@echo "  make setup       - Configurer le template (interactif)"
+	@echo ""
+	@echo "🛠️  Développement:"
+	@echo "  make dev         - Démarrer en mode développement"
+	@echo "  make build       - Construire l'application"
+	@echo "  make test        - Exécuter les tests"
+	@echo "  make clean       - Nettoyer les fichiers générés"
+	@echo ""
+	@echo "🐳 Docker (développement):"
+	@echo "  make docker-up   - Démarrer la base de données"
+	@echo "  make docker-down - Arrêter la base de données"
+	@echo "  make docker-logs - Afficher les logs de la DB"
+	@echo ""
+	@echo "📦 Sauvegardes et déploiement:"
+	@echo "  make backup      - Créer une sauvegarde"
+	@echo "  make restore     - Restaurer depuis une sauvegarde"
+	@echo ""
+	@echo "🔧 Maintenance:"
+	@echo "  make migrate     - Exécuter les migrations"
+	@echo "  make migrate-gen - Générer une migration"
+	@echo "  make lint        - Linter le code"
+	@echo "  make format      - Formater le code"
+	@echo ""
+	@echo "📁 Modules:"
+	@echo "  make module.create - Créer un nouveau module"
 
-#-- PROJECT
-start:  ## Start project
-	yarn watch
+# Installation des dépendances
+install:
+	@echo "📦 Installation des dépendances..."
+	yarn
+	@echo "✅ Dépendances installées"
 
-#-- DATABASE
-db.create: ## Create database
-	@echo "Starting Docker Compose..."
-	@docker-compose up -d
-	@echo "Sleeping for 5 seconds..."
-	@sleep 5
-	@echo "Running make migration..."
-	@yarn migrate
+# Configuration du template
+setup:
+	@echo "🚀 Configuration du template..."
+	@if [ -f "scripts/setup-template.sh" ]; then \
+		chmod +x scripts/setup-template.sh; \
+		./scripts/setup-template.sh; \
+	else \
+		echo "❌ Script de configuration non trouvé"; \
+		exit 1; \
+	fi
 
-db.delete: ## Delete database
-	docker compose down && docker volume rm -f api-template_db && rm -rf ./public/files && rm -rf ./src/migrations/
+# Mode développement
+dev:
+	@echo "🛠️  Démarrage en mode développement..."
+	yarn run start:dev
 
-db.start: ## Start database
-	docker start template-db
-	
-db.stop: ## Stop database
-	docker stop template-db
+# Construction de l'application
+build:
+	@echo "🔨 Construction de l'application..."
+	yarn run build
 
-db.clean: ## Clean database
-	@echo "Removing old db_data..."
-	@make db.delete
-	@echo "Starting Docker Compose..."
-	@docker-compose up -d
-	@echo "Sleeping for 5 seconds..."
-	@sleep 5
-	@echo "Running make migration..."
-	@yarn migrate
-	@echo "Start server..."
-	@make start
+# Tests
+test:
+	@echo "🧪 Exécution des tests..."
+	yarn run test
 
-#-- TYPEORM
+# Tests avec couverture
+test-cov:
+	@echo "🧪 Exécution des tests avec couverture..."
+	yarn run test:cov
+
+# Tests e2e
+test-e2e:
+	@echo "🧪 Exécution des tests e2e..."
+	yarn run test:e2e
+
+# Nettoyage
+clean:
+	@echo "🧹 Nettoyage des fichiers générés..."
+	rm -rf dist/
+	rm -rf coverage/
+	rm -rf node_modules/
+	@echo "✅ Nettoyage terminé"
+
+# Docker - Démarrer (développement)
+docker-up:
+	@echo "🐳 Démarrage de la base de données (développement)..."
+	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
+	@echo "✅ Base de données démarrée"
+
+# Docker - Arrêter (développement)
+docker-down:
+	@echo "🐳 Arrêt de la base de données (développement)..."
+	docker compose -f $(DOCKER_COMPOSE_FILE) down
+	@echo "✅ Base de données arrêtée"
+
+# Docker - Logs (développement)
+docker-logs:
+	@echo "📋 Logs de la base de données (développement)..."
+	docker compose -f $(DOCKER_COMPOSE_FILE) logs -f
+
+# Docker - Rebuild (développement)
+docker-rebuild:
+	@echo "🔨 Reconstruction de la base de données (développement)..."
+	docker compose -f $(DOCKER_COMPOSE_FILE) down
+	docker compose -f $(DOCKER_COMPOSE_FILE) build --no-cache
+	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
+	@echo "✅ Base de données reconstruite et démarrée"
+
+# Sauvegarde
+backup:
+	@echo "💾 Création d'une sauvegarde..."
+	@if [ -f "scripts/backup.sh" ]; then \
+		chmod +x scripts/backup.sh; \
+		./scripts/backup.sh; \
+	else \
+		echo "❌ Script de sauvegarde non trouvé"; \
+		exit 1; \
+	fi
+
+# Restauration
+restore:
+	@echo "🔄 Restauration depuis une sauvegarde..."
+	@if [ -f "scripts/restore.sh" ]; then \
+		chmod +x scripts/restore.sh; \
+		./scripts/restore.sh; \
+	else \
+		echo "❌ Script de restauration non trouvé"; \
+		exit 1; \
+	fi
+
+# Migrations
+migrate:
+	@echo "🔄 Exécution des migrations..."
+	yarn run migrate:run
+
+# Génération de migration
+migrate-gen:
+	@echo "📝 Génération d'une migration..."
+	yarn run migrate:generate
+
+# Affichage des migrations
+migrate-show:
+	@echo "📋 Affichage des migrations..."
+	yarn run migrate:show
+
+# Création de module
 module.create: ## Create module
 	@read -p "Entrer le nom du module: " name; \
 	upperName=$$(echo $$name | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}'); \
@@ -56,23 +167,59 @@ module.create: ## Create module
 	echo "export * from './$${upperName}';" >> ./src/types/dto/index.ts; \
 	touch ./src/validations/$$name.ts; \
 	echo "import { Create$${upperName}Api, Update$${upperName}Api } from 'src/types';\nimport * as yup from 'yup';\n\nconst create: yup.ObjectSchema<Create$${upperName}Api> = yup.object({});\n\nconst update: yup.ObjectSchema<Update$${upperName}Api> = yup.object({});\n\nexport const $${name}Validation = {\n  create,\n  update,\n};" >> ./src/validations/$$name.ts; \
-	echo "export * from './$${name}';" >> ./src/validations/index.ts; \
+	echo "export * from './$${name}';" >> ./src/validations/index.ts;
 
-#-- DOCKER
-docker.build: ## Build docker image
-	docker build --platform=linux/amd64 -t template-api:latest .  
+# Linting
+lint:
+	@echo "🔍 Linting du code..."
+	yarn run lint
 
-docker.tag: ## Tag docker image
-	docker tag template-api:latest noephilippe/template-api:latest
+# Formatage
+format:
+	@echo "✨ Formatage du code..."
+	yarn run format
 
-docker.push: ## Push docker image
-	docker push noephilippe/template-api:latest
+# Configuration des sauvegardes automatiques
+setup-backup-cron:
+	@echo "⏰ Configuration des sauvegardes automatiques..."
+	@if [ -f "scripts/setup-backup-cron.sh" ]; then \
+		chmod +x scripts/setup-backup-cron.sh; \
+		./scripts/setup-backup-cron.sh daily 02:00; \
+	else \
+		echo "❌ Script de configuration cron non trouvé"; \
+		exit 1; \
+	fi
 
-docker.new: ## Build, tag and push docker image
-	make docker.build
-	make docker.tag
-	make docker.push
+# Affichage des sauvegardes
+list-backups:
+	@echo "📋 Liste des sauvegardes..."
+	@if [ -f "scripts/list-backups.sh" ]; then \
+		chmod +x scripts/list-backups.sh; \
+		./scripts/list-backups.sh; \
+	else \
+		echo "❌ Script de listing des sauvegardes non trouvé"; \
+		exit 1; \
+	fi
 
-#-- DEPLOY
-deploy: ## Deploy on server
-	ansible-playbook -i inventory.ini deploy.yml
+# Nettoyage des sauvegardes
+cleanup-backups:
+	@echo "🧹 Nettoyage des anciennes sauvegardes..."
+	@if [ -f "scripts/list-backups.sh" ]; then \
+		chmod +x scripts/list-backups.sh; \
+		./scripts/list-backups.sh cleanup; \
+	else \
+		echo "❌ Script de nettoyage non trouvé"; \
+		exit 1; \
+	fi
+
+# Installation complète (pour nouveaux projets)
+install-full: install setup docker-up migrate
+	@echo "🎉 Installation complète terminée!"
+	@echo "📋 Prochaines étapes:"
+	@echo "1. Configurer le fichier .env"
+	@echo "2. Démarrer l'application: make dev"
+	@echo "3. Accéder à l'API: http://localhost:8000"
+	@echo "4. Documentation Swagger: http://localhost:8000/api"
+	@echo ""
+	@echo "💡 Note: Le docker-compose.yml démarre seulement la base de données"
+	@echo "   L'API s'exécute en local avec 'make dev'"

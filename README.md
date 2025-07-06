@@ -1,68 +1,328 @@
-# api-template
+# Template API NestJS
 
-Template pour créer une API REST avec Node.js, TypeORM et Postgres.
+Un template complet et réutilisable pour créer des APIs NestJS avec authentification, upload de fichiers et base de données PostgreSQL.
 
-## Installation
+## 🚀 Fonctionnalités
 
-1. Cloner le dépôt
-2. Installer les dépendances avec `bun i`
-3. Toutes les commandes sont disponibles avec `make help`
+- **Authentification JWT** avec stratégies Passport
+- **Upload de fichiers** avec gestion d'images
+- **Base de données PostgreSQL** avec TypeORM
+- **Documentation Swagger** automatique
+- **Déploiement Docker** avec CI/CD GitHub Actions
+- **Sauvegardes automatiques** de la base de données et des fichiers
+- **Scripts de gestion** pour maintenance et déploiement
 
-## Architecture
+## 📋 Prérequis
 
-- `src` : code source
-  - `decorators` : décorateurs pour les contrôleurs
-  - `errors` : gestionnaire des erreurs pour le front
-  - `migrations` : migrations de la base de données
-  - `modules` :
-    - `nom-du-module` : module
-      - `entity` : entités du module
-      - `controller` : contrôleurs du module
-      - `repositorie` : répertoires du module
-      - `service` : services du module
-  - `types` : types
-    - `api`: Ce que l'API reçoit
-    - `dto`: Ce que l'API renvoie
-  - `validations` : validation des données avec yup
+- Node.js 18+
+- Docker et Docker Compose
+- PostgreSQL (optionnel pour le développement local)
+- Git
 
-## Utilisation
+## 🛠️ Installation
 
-### Lancer le projet
+### 1. Cloner le template
 
-1. Créer un .env à partir du .env.example (Modifier les variables d'environnement si besoin)
-2. Faire correspondre les variables d'environnement avec le docker-compose.yml
-3. Utiliser la bonne verion de node avec `nvm use 18`
-4. Lancer un docker et faire cette commande : `make db.clean`
-5. Si tous fonctionne, vous pouvez accéder à l'API à l'adresse [http://localhost:8000](http://localhost:8000). Vous devrez voir écrit `Hello World!`
+```bash
+git clone <votre-repo-template>
+cd api-template
+```
 
-### Tester l'API (register et login)
+### 2. Installer les dépendances
 
-1. Lancer le projet
-2. Ouvrer un Postman
-3. Créer une méthode POST avec l'URL [http://localhost:8000/auth/register](http://localhost:8000/auth/register)
-4. Dans le Header, dans `KEY`, mettre `x-api-key` et dans `VALUE`, mettre votre clef d'API présenter dans le .env
-5. Dans le Body, sélectionner `raw` et `JSON`, puis mettre ceci :
+```bash
+yarn install
+```
 
-```json
-{
-  "email": "john@gmail.com",
-  "password": "Azerty123!",
-  "lastName": "Doe",
-  "firstName": "John"
+### 3. Configuration de l'environnement
+
+Copier le fichier d'environnement :
+
+```bash
+cp .env.example .env
+```
+
+Éditer le fichier `.env` avec vos configurations :
+
+```env
+# Base de données
+TYPEORM_HOST=localhost
+TYPEORM_PORT=5432
+TYPEORM_USERNAME=postgres
+TYPEORM_PASSWORD=votre_mot_de_passe
+TYPEORM_DATABASE=template_db
+
+# JWT
+JWT_SECRET=votre_secret_jwt
+JWT_EXPIRES_IN=24h
+
+# API
+PORT=8000
+NODE_ENV=development
+```
+
+### 4. Base de données
+
+#### Option A : Docker (recommandé)
+
+```bash
+docker compose up -d template-db
+```
+
+#### Option B : PostgreSQL local
+
+Installer PostgreSQL et créer une base de données :
+
+```sql
+CREATE DATABASE template_db;
+```
+
+### 5. Migrations
+
+```bash
+npm run migrate
+```
+
+### 6. Démarrage
+
+```bash
+# Développement
+yarn run start:dev
+
+# Production
+yarn run start:prod
+```
+
+## 🏗️ Structure du projet
+
+```
+src/
+├── app.controller.ts          # Contrôleur principal
+├── app.module.ts             # Module principal
+├── app.service.ts            # Service principal
+├── main.ts                   # Point d'entrée
+├── decorators/               # Décorateurs personnalisés
+├── errors/                   # Gestion d'erreurs
+├── modules/                  # Modules de l'application
+│   ├── auth/                 # Authentification
+│   ├── user/                 # Gestion des utilisateurs
+│   ├── media/                # Gestion des médias
+│   └── admin/                # Administration
+├── types/                    # Types TypeScript
+├── utils/                    # Utilitaires
+└── validations/              # Validations
+```
+
+## 🔐 Authentification
+
+Le template inclut un système d'authentification complet :
+
+- **Inscription** : `/auth/register`
+- **Connexion** : `/auth/login`
+- **Rafraîchissement** : `/auth/refresh`
+- **Déconnexion** : `/auth/logout`
+
+### Utilisation
+
+```typescript
+// Décorateur pour récupérer l'utilisateur connecté
+@Get('profile')
+@UseGuards(JwtAuthGuard)
+getProfile(@GetCurrentUser() user: User) {
+  return user;
 }
 ```
 
-6. Envoyer la requête (Cette requête va créer un utilisateur et le logger)
-7. Copier le token dans la réponse
-8. Ouvrir une nouvelle fenêtre Postman avec un GET sur [http://localhost:8000/users/me](http://localhost:8000/users/me)
-9. Dans Authorization, sélectionner `Bearer Token` et coller le token copier précédemment
-10. Envoyer la requête (Cette requête va récupérer les informations de l'utilisateur connecté)
-11. Pour mettre à jour l'utilisateur, faire un PATCH sur [http://localhost:8000/users/me](http://localhost:8000/users/me) avec le même token et dans le body :
+## 📁 Upload de fichiers
 
-```json
-{
-  "lastName": "Doe2"
+Le template gère l'upload de fichiers avec :
+
+- Validation des types de fichiers
+- Redimensionnement automatique des images
+- Stockage sécurisé
+- Gestion des métadonnées
+
+### Utilisation
+
+```typescript
+@Post('upload')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(FileInterceptor('file'))
+uploadFile(@UploadedFile() file: Express.Multer.File) {
+  return this.mediaService.uploadFile(file);
 }
 ```
 
-La requête va mettre à jour le nom de famille de l'utilisateur et renvoyer les informations de l'utilisateur 12. Pour supprimer l'utilisateur, faire un DELETE sur [http://localhost:8000/users/me](http://localhost:8000/users/me) avec le même token 13. Vous pouvez également créer un admin par défaut une fois que vous êtes connecté avec un GET sur [http://localhost:8000/admin/create-default-admin](http://localhost:8000/admin/create-default-admin)
+## 🐳 Déploiement Docker
+
+### Développement local
+
+```bash
+# Construire et démarrer
+docker compose up -d
+
+# Voir les logs
+docker compose logs -f
+
+# Arrêter
+docker compose down
+```
+
+### Production
+
+Le template inclut un système de déploiement automatique via GitHub Actions :
+
+1. **Build** de l'image Docker
+2. **Push** vers GitHub Container Registry
+3. **Déploiement** automatique sur le serveur
+4. **Sauvegarde** avant mise à jour
+
+## 📦 Scripts de gestion
+
+### Sauvegardes
+
+```bash
+# Sauvegarde complète
+./scripts/backup.sh
+
+# Sauvegarde DB seulement
+./scripts/backup.sh --db
+
+# Sauvegarde images seulement
+./scripts/backup.sh --images
+```
+
+### Restauration
+
+```bash
+# Restaurer la base de données
+./scripts/restore.sh template_backup_20241201_020000.sql
+
+# Restaurer les images
+./scripts/restore.sh images_backup_20241201_020000.tar.gz
+```
+
+### Déploiement
+
+```bash
+# Déployer l'application
+./scripts/deploy.sh
+```
+
+## 🔧 Configuration CI/CD
+
+### Secrets GitHub requis
+
+- `CR_PAT` : Token GitHub pour Container Registry
+- `SERVER_HOST` : Adresse du serveur de production
+- `SERVER_USER` : Utilisateur SSH
+- `SSH_PRIVATE_KEY` : Clé SSH privée
+- `SSH_PORT` : Port SSH (défaut: 22)
+
+### Workflow GitHub Actions
+
+Le workflow automatique :
+
+1. Se déclenche sur push vers `main`
+2. Build l'image Docker
+3. Push vers GitHub Container Registry
+4. Déploie sur le serveur de production
+5. Configure les sauvegardes automatiques
+
+## 📚 Documentation API
+
+Une fois l'application démarrée, la documentation Swagger est disponible à :
+
+```
+http://localhost:8000/api
+```
+
+## 🧪 Tests
+
+```bash
+# Tests unitaires
+yarn run test
+
+# Tests e2e
+yarn run test:e2e
+
+# Couverture de code
+yarn run test:cov
+```
+
+## 🔄 Migrations
+
+```bash
+# Générer une migration
+yarn run migrate:generate
+
+# Exécuter les migrations
+yarn run migrate:run
+
+# Voir les migrations
+yarn run migrate:show
+```
+
+## 🛡️ Sécurité
+
+- **Validation** des entrées avec Yup
+- **Hachage** des mots de passe avec bcrypt
+- **JWT** pour l'authentification
+- **CORS** configuré
+- **Rate limiting** (à implémenter selon vos besoins)
+- **Validation** des fichiers uploadés
+
+## 📝 Personnalisation
+
+### 1. Renommer le projet
+
+```bash
+# Remplacer "template" par votre nom de projet
+find . -type f -name "*.yml" -o -name "*.yaml" -o -name "*.json" -o -name "*.md" -o -name "*.sh" | xargs sed -i 's/template/votre-projet/g'
+```
+
+### 2. Modifier les variables d'environnement
+
+Éditer le fichier `.env` et adapter les variables selon vos besoins.
+
+### 3. Ajouter vos modules
+
+Créer de nouveaux modules dans `src/modules/` en suivant la structure existante.
+
+### 4. Personnaliser l'authentification
+
+Modifier les stratégies dans `src/modules/auth/strategies/` selon vos besoins.
+
+## 🤝 Contribution
+
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
+
+## 📄 Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+## 🆘 Support
+
+Pour toute question ou problème :
+
+1. Consulter la documentation
+2. Vérifier les issues existantes
+3. Créer une nouvelle issue avec un exemple reproductible
+
+## 🔄 Mises à jour
+
+Pour mettre à jour le template :
+
+```bash
+git pull origin main
+yarn install
+yarn run migrate
+```
+
+---
+
+**Note** : Ce template est conçu pour être un point de départ solide pour vos projets NestJS. Adaptez-le selon vos besoins spécifiques.

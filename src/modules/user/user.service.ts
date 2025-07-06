@@ -5,10 +5,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Raw, Repository } from 'typeorm';
 import { MediaService } from '../media/media.service';
 import { User } from './user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
@@ -130,6 +130,22 @@ export class UserService {
 
   async deleteUser(id: string): Promise<void> {
     try {
+      const user = await this.getOneById(id);
+      if (!user) {
+        throw new BadRequestException(errorMessage.api('user').NOT_FOUND, id);
+      }
+
+      // Supprimer d'abord la référence à la photo de profil dans l'utilisateur
+      if (user.profilePicture) {
+        await this.userRepository.update(id, {
+          profilePicture: null,
+        });
+
+        // Ensuite supprimer le média (fichier physique + enregistrement)
+        await this.mediaService.deleteMedia(user.profilePicture.id);
+      }
+
+      // Enfin supprimer l'utilisateur
       await this.userRepository.delete(id);
     } catch (error) {
       console.log(error);
