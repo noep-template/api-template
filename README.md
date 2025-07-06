@@ -87,7 +87,7 @@ Créer/modifier le fichier `.env` :
 ```env
 # Base de données
 TYPEORM_PASSWORD=votre_mot_de_passe
-TYPEORM_DATABASE=gigjam_db
+TYPEORM_DATABASE=template_db
 
 # JWT
 JWT_SECRET=votre_secret_jwt
