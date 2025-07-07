@@ -149,8 +149,103 @@ make dev         # API en local
 
 ### Production
 
+#### 1. Configuration du serveur
+
+Avant le premier déploiement, configurer le serveur de production :
+
 ```bash
-# Construire et démarrer
+# Se connecter au serveur
+ssh user@votre-serveur.com
+
+# Créer le répertoire du projet
+mkdir -p ~/votre-projet
+cd ~/votre-projet
+
+# Configurer les variables d'environnement
+nano .env
+# Ajouter les variables nécessaires
+# Dévoloppement
+NODE_ENV=production
+JWT_SECRET=votre_secret_jwt
+API_PORT=8000
+API_KEY=votre_api_key
+API_URL=http://votre-serveur.com:8000
+
+FILES_PATH=./public/files
+
+# DB
+TYPEORM_HOST=localhost
+TYPEORM_PORT=5432
+TYPEORM_USERNAME=postgres
+TYPEORM_PASSWORD=votre_mot_de_passe
+TYPEORM_NAME=votre_base_de_données
+TYPEORM_DATABASE=votre_base_de_données
+```
+
+#### 2. Configuration GitHub Actions
+
+Dans votre repository GitHub, configurer les secrets suivants :
+
+- `CR_PAT` : Token GitHub pour Container Registry
+- `SERVER_HOST` : Adresse IP de votre serveur
+- `SERVER_USER` : Nom d'utilisateur SSH
+- `SSH_PRIVATE_KEY` : Clé SSH privée pour se connecter au serveur
+- `SSH_PORT` : Port SSH (défaut: 22)
+
+#### 3. Déploiement automatique
+
+Le déploiement se fait automatiquement à chaque push vers `main` :
+
+```bash
+# Développer vos fonctionnalités
+git add .
+git commit -m "Nouvelle fonctionnalité"
+git push origin main
+```
+
+Le workflow GitHub Actions va automatiquement :
+
+1. **Build** l'image Docker
+2. **Push** vers GitHub Container Registry
+3. **Déployer** sur le serveur de production
+4. **Configurer** les sauvegardes automatiques
+
+#### 4. Vérification du déploiement
+
+```bash
+# Vérifier le statut des conteneurs
+docker ps
+
+# Voir les logs de l'application
+docker logs votre-projet-api
+
+# Tester l'API
+curl http://votre-serveur.com:8000/health
+```
+
+#### 5. Sauvegardes automatiques
+
+Les sauvegardes sont configurées automatiquement :
+
+- **Base de données** : Sauvegarde quotidienne à 02:00
+- **Fichiers uploadés** : Sauvegarde hebdomadaire
+- **Rétention** : 30 jours pour les sauvegardes
+
+#### 6. Rollback en cas de problème
+
+```bash
+# Se connecter au serveur
+ssh user@votre-serveur.com
+cd ~/votre-projet
+
+# Restaurer depuis une sauvegarde
+./scripts/restore.sh backup_20241201_020000.sql
+```
+
+### Déploiement manuel (si nécessaire)
+
+```bash
+# Construire et démarrer manuellement
 docker compose -f docker-compose.api.yml up -d
 ```
 
