@@ -113,6 +113,7 @@ docker-up:
 docker-clean:
 	@echo "🧹 Nettoyage des conteneurs et volumes..."
 	docker compose -f $(DOCKER_COMPOSE_FILE) down -v
+	docker volume prune -f
 	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
 	@echo "✅ Base de données nettoyée et redémarrée"
 
