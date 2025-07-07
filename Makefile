@@ -23,6 +23,7 @@ help:
 	@echo "  make docker-up   - Démarrer la base de données"
 	@echo "  make docker-down - Arrêter la base de données"
 	@echo "  make docker-logs - Afficher les logs de la DB"
+	@echo "  make docker-clean - Nettoyer et redémarrer la DB"
 	@echo ""
 	@echo "📦 Sauvegardes et déploiement:"
 	@echo "  make backup      - Créer une sauvegarde"
@@ -107,6 +108,13 @@ docker-up:
 	@echo "🐳 Démarrage de la base de données (développement)..."
 	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
 	@echo "✅ Base de données démarrée"
+
+# Docker - Nettoyer et redémarrer (développement)
+docker-clean:
+	@echo "🧹 Nettoyage des conteneurs et volumes..."
+	docker compose -f $(DOCKER_COMPOSE_FILE) down -v
+	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
+	@echo "✅ Base de données nettoyée et redémarrée"
 
 # Docker - Arrêter (développement)
 docker-down:

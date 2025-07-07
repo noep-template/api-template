@@ -110,6 +110,7 @@ fi
 if [ -f "docker-compose.yml" ]; then
     echo "🐳 Mise à jour docker-compose.yml..."
     sed -i '' "s/template-db/${PROJECT_NAME}-db/g" docker-compose.yml
+    sed -i '' "s/container_name: template-db/container_name: ${PROJECT_NAME}-db/g" docker-compose.yml
     sed -i '' "s/template-api/${PROJECT_NAME}-api/g" docker-compose.yml
 fi
 
