@@ -8,6 +8,7 @@ set -e
 # Configuration par défaut
 FREQUENCY=${1:-"daily"}  # daily, weekly, monthly
 BACKUP_TIME=${2:-"02:00"}  # Heure de sauvegarde (format HH:MM)
+PROJECT_NAME="${PROJECT_NAME:-template}"
 
 # Extraire heure et minute
 CRON_HOUR=$(echo "$BACKUP_TIME" | cut -d: -f1)
@@ -18,20 +19,20 @@ echo "⏰ Fréquence: ${FREQUENCY}"
 echo "🕐 Heure: ${BACKUP_TIME}"
 
 # Créer le script de sauvegarde cron
-CRON_SCRIPT="/tmp/template-backup-cron.sh"
+CRON_SCRIPT="/tmp/${PROJECT_NAME:-template}-backup-cron.sh"
 
 cat > "${CRON_SCRIPT}" << 'EOF'
 #!/bin/bash
 
-# Script de sauvegarde automatique pour Fast Foodie
+# Script de sauvegarde automatique pour ${PROJECT_NAME:-template}
 # Ce script est exécuté par cron
 
 # Variables d'environnement
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Répertoire du projet
-PROJECT_DIR="/home/noep/template"
-LOG_FILE="/home/noep/template/backup.log"
+PROJECT_DIR="/home/noep/${PROJECT_NAME:-template}"
+LOG_FILE="/home/noep/${PROJECT_NAME:-template}/backup.log"
 
 # Créer le répertoire de logs s'il n'existe pas
 mkdir -p "$(dirname "${LOG_FILE}")"
@@ -117,8 +118,8 @@ esac
 
 # Ajouter la tâche cron
 # Supprimer d'abord les tâches existantes pour éviter les doublons
-echo "🧹 Suppression des tâches cron existantes pour Fast Foodie..."
-crontab -l 2>/dev/null | grep -v "template-backup-cron.sh" | crontab -
+echo "🧹 Suppression des tâches cron existantes pour ${PROJECT_NAME:-template}..."
+crontab -l 2>/dev/null | grep -v "${PROJECT_NAME:-template}-backup-cron.sh" | crontab -
 
 # Ajouter la nouvelle tâche
 echo "➕ Ajout de la nouvelle tâche cron..."
@@ -126,9 +127,9 @@ echo "➕ Ajout de la nouvelle tâche cron..."
 
 echo "✅ Tâche cron configurée avec succès!"
 
-# Afficher les tâches existantes pour Fast Foodie
-echo "📋 Tâches cron Fast Foodie existantes:"
-crontab -l 2>/dev/null | grep "template" || echo "   Aucune tâche Fast Foodie trouvée"
+# Afficher les tâches existantes pour ${PROJECT_NAME:-template}
+echo "📋 Tâches cron ${PROJECT_NAME:-template} existantes:"
+crontab -l 2>/dev/null | grep "${PROJECT_NAME:-template}" || echo "   Aucune tâche ${PROJECT_NAME:-template} trouvée"
 
 echo "📋 Toutes les tâches cron actuelles:"
 crontab -l

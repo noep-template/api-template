@@ -7,13 +7,14 @@ set -e
 
 # Configuration
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
+PROJECT_NAME="${PROJECT_NAME:-template}"
 # S'assurer que le chemin est absolu si nécessaire
 if [[ "$BACKUP_DIR" == ./* ]]; then
     BACKUP_DIR="$(pwd)/${BACKUP_DIR#./}"
 fi
 DB_BACKUP_DIR="${BACKUP_DIR}"
 IMAGES_BACKUP_DIR="${BACKUP_DIR}/images"
-CONTAINER_NAME="template-api"
+CONTAINER_NAME="${PROJECT_NAME:-template}-api"
 MAX_DB_BACKUPS=7
 MAX_IMAGE_BACKUPS=3
 
@@ -101,9 +102,9 @@ if [ -f ".env" ]; then
 fi
 
 # Variables d'environnement pour la DB
-DB_HOST=${TYPEORM_HOST:-"template-db"}
+DB_HOST=${TYPEORM_HOST:-"${PROJECT_NAME:-template}-db"}
 DB_PORT=${TYPEORM_PORT:-"5432"}
-DB_NAME=${TYPEORM_DATABASE:-"template_db"}
+DB_NAME=${TYPEORM_DATABASE:-"${PROJECT_NAME:-template}_db"}
 DB_USER=${TYPEORM_USERNAME:-"postgres"}
 DB_PASSWORD=${TYPEORM_PASSWORD:-""}
 
@@ -112,20 +113,20 @@ if [ "$BACKUP_DB" = true ]; then
     log "💾 Sauvegarde de la base de données..."
     
     # Vérifier que le conteneur DB est en cours d'exécution
-    if ! docker ps | grep -q "template-db"; then
-        log "❌ Le conteneur template-db n'est pas en cours d'exécution"
+    if ! docker ps | grep -q "${PROJECT_NAME:-template}-db"; then
+        log "❌ Le conteneur ${PROJECT_NAME:-template}-db n'est pas en cours d'exécution"
         exit 1
     fi
     
     # Nom du fichier de sauvegarde DB
     DATE=$(date +%Y%m%d_%H%M%S)
-    DB_BACKUP_NAME="template_backup_${DATE}"
+    DB_BACKUP_NAME="${PROJECT_NAME:-template}_backup_${DATE}"
     DB_BACKUP_FILE="${DB_BACKUP_DIR}/${DB_BACKUP_NAME}.sql"
     
     log "📄 Création du dump de la base de données..."
     
     # Effectuer la sauvegarde DB
-    if docker exec -e PGPASSWORD="${DB_PASSWORD}" template-db pg_dump \
+    if docker exec -e PGPASSWORD="${DB_PASSWORD}" "${PROJECT_NAME:-template}-db" pg_dump \
         -U "${DB_USER}" \
         -d "${DB_NAME}" \
         --verbose \

@@ -9,6 +9,7 @@ echo "🚀 Démarrage du déploiement..."
 PROJECT_DIR="$HOME/template"
 COMPOSE_FILE="$PROJECT_DIR/docker-compose.api.yml"
 BACKUP_DIR="$PROJECT_DIR/backups"
+PROJECT_NAME="${PROJECT_NAME:-template}"
 
 # Créer le répertoire de projet s'il n'existe pas
 mkdir -p "$PROJECT_DIR"
@@ -26,7 +27,7 @@ backup_database() {
     echo "📦 Sauvegarde de la base de données..."
     
     # Vérifier si le conteneur de base de données existe et fonctionne
-    if docker ps | grep -q "template-db"; then
+    if docker ps | grep -q "${PROJECT_NAME}-db"; then
         echo "✅ Conteneur de base de données trouvé, sauvegarde en cours..."
         
         # Déboguer les variables d'environnement
@@ -99,10 +100,10 @@ deploy() {
     sleep 5
     
     echo "📋 Logs du conteneur API:"
-    docker logs template --tail 20 || echo "Impossible de récupérer les logs du conteneur API"
+    docker logs "${PROJECT_NAME}-api" --tail 20 || echo "Impossible de récupérer les logs du conteneur API"
     
     echo "📋 Logs du conteneur base de données:"
-    docker logs template-db --tail 10 || echo "Impossible de récupérer les logs du conteneur DB"
+    docker logs "${PROJECT_NAME}-db" --tail 10 || echo "Impossible de récupérer les logs du conteneur DB"
 }
 
 # Fonction de vérification de santé
@@ -111,10 +112,10 @@ health_check() {
     
     # Afficher les logs du conteneur API pour diagnostiquer
     echo "📋 Logs du conteneur API:"
-    docker logs template --tail 20 || echo "Impossible de récupérer les logs"
+    docker logs "${PROJECT_NAME}-api" --tail 20 || echo "Impossible de récupérer les logs"
     
     echo "📋 Logs du conteneur base de données:"
-    docker logs template-db --tail 10 || echo "Impossible de récupérer les logs"
+    docker logs "${PROJECT_NAME}-db" --tail 10 || echo "Impossible de récupérer les logs"
     
     sleep 10
     
@@ -130,7 +131,7 @@ health_check() {
     
     echo "❌ L'application n'a pas démarré correctement"
     echo "📋 Logs finaux du conteneur API:"
-    docker logs template --tail 50 || echo "Impossible de récupérer les logs"
+    docker logs "${PROJECT_NAME}-api" --tail 50 || echo "Impossible de récupérer les logs"
     return 1
 }
 
@@ -138,7 +139,7 @@ health_check() {
 main() {
     deploy
     # Sauvegarde seulement si c'est pas le premier déploiement
-    if docker ps | grep -q "template-db"; then
+    if docker ps | grep -q "${PROJECT_NAME}-db"; then
         backup_database
     else
         echo "ℹ️  Premier déploiement, pas de sauvegarde"
