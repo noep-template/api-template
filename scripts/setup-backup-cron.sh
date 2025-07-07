@@ -18,7 +18,7 @@ echo "⏰ Fréquence: ${FREQUENCY}"
 echo "🕐 Heure: ${BACKUP_TIME}"
 
 # Créer le script de sauvegarde cron
-CRON_SCRIPT="/tmp/fast-foodie-backup-cron.sh"
+CRON_SCRIPT="/tmp/api-template-backup-cron.sh"
 
 cat > "${CRON_SCRIPT}" << 'EOF'
 #!/bin/bash
@@ -30,8 +30,8 @@ cat > "${CRON_SCRIPT}" << 'EOF'
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Répertoire du projet
-PROJECT_DIR="/home/noep/fast-foodie"
-LOG_FILE="/home/noep/fast-foodie/backup.log"
+PROJECT_DIR="/home/noep/api-template"
+LOG_FILE="/home/noep/api-template/backup.log"
 
 # Créer le répertoire de logs s'il n'existe pas
 mkdir -p "$(dirname "${LOG_FILE}")"
@@ -118,7 +118,7 @@ esac
 # Ajouter la tâche cron
 # Supprimer d'abord les tâches existantes pour éviter les doublons
 echo "🧹 Suppression des tâches cron existantes pour Fast Foodie..."
-crontab -l 2>/dev/null | grep -v "fast-foodie-backup-cron.sh" | crontab -
+crontab -l 2>/dev/null | grep -v "api-template-backup-cron.sh" | crontab -
 
 # Ajouter la nouvelle tâche
 echo "➕ Ajout de la nouvelle tâche cron..."
@@ -128,7 +128,7 @@ echo "✅ Tâche cron configurée avec succès!"
 
 # Afficher les tâches existantes pour Fast Foodie
 echo "📋 Tâches cron Fast Foodie existantes:"
-crontab -l 2>/dev/null | grep "fast-foodie" || echo "   Aucune tâche Fast Foodie trouvée"
+crontab -l 2>/dev/null | grep "api-template" || echo "   Aucune tâche Fast Foodie trouvée"
 
 echo "📋 Toutes les tâches cron actuelles:"
 crontab -l

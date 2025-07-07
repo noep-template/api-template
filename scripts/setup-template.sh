@@ -125,7 +125,7 @@ find scripts/ -name "*.sh" -type f -exec sed -i '' "s/template/$PROJECT_NAME/g" 
 if [ -f ".github/workflows/deploy.yml" ]; then
     echo "⚙️  Mise à jour du workflow GitHub Actions..."
     sed -i '' "s/template-api/${PROJECT_NAME}-api/g" .github/workflows/deploy.yml
-    sed -i '' "s|~/template-api|~/$(echo $PROJECT_NAME | tr '-' '_')|g" .github/workflows/deploy.yml
+    sed -i '' "s|~/api-template|~/$(echo $PROJECT_NAME | tr '-' '_')|g" .github/workflows/deploy.yml
 fi
 
 # Mettre à jour le README

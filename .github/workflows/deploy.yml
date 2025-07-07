@@ -71,8 +71,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            mkdir -p ~/template-api
-            mkdir -p ~/template-api/backups
+            mkdir -p ~/api-template
+            mkdir -p ~/api-template/backups
 
       - name: Copy files to server
         uses: appleboy/scp-action@v0.1.7
@@ -82,7 +82,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: 'docker-compose.api.yml,scripts/,.env'
-          target: '~/template-api/'
+          target: '~/api-template/'
           strip_components: 0
 
       - name: Deploy via SSH
@@ -94,7 +94,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           envs: CR_PAT,GITHUB_USERNAME
           script: |
-            cd ~/template-api
+            cd ~/api-template
             export CR_PAT="${{ secrets.CR_PAT }}"
             export GITHUB_USERNAME="${{ github.actor }}"
 
