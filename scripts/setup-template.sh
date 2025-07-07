@@ -92,7 +92,7 @@ echo "🔧 Mise à jour des fichiers..."
 # Mettre à jour package.json
 if [ -f "package.json" ]; then
     echo "📦 Mise à jour package.json..."
-    sed -i '' "s/\"name\": \"api-template\"/\"name\": \"$PROJECT_NAME\"/" package.json
+    sed -i '' "s/\"name\": \"template\"/\"name\": \"$PROJECT_NAME\"/" package.json
     sed -i '' "s/\"description\": \"Template API NestJS avec authentification, upload de fichiers et base de données PostgreSQL\"/\"description\": \"$PROJECT_DESCRIPTION\"/" package.json
     sed -i '' "s/\"author\": \"\"/\"author\": \"$AUTHOR_NAME <$AUTHOR_EMAIL>\"/" package.json
 fi
@@ -125,7 +125,7 @@ find scripts/ -name "*.sh" -type f -exec sed -i '' "s/template/$PROJECT_NAME/g" 
 if [ -f ".github/workflows/deploy.yml" ]; then
     echo "⚙️  Mise à jour du workflow GitHub Actions..."
     sed -i '' "s/template-api/${PROJECT_NAME}-api/g" .github/workflows/deploy.yml
-    sed -i '' "s|~/api-template|~/$(echo $PROJECT_NAME | tr '-' '_')|g" .github/workflows/deploy.yml
+    sed -i '' "s|~/template|~/$(echo $PROJECT_NAME | tr '-' '_')|g" .github/workflows/deploy.yml
 fi
 
 # Mettre à jour le README

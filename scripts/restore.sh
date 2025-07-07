@@ -9,7 +9,7 @@ set -e
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 DB_BACKUP_DIR="${BACKUP_DIR}"
 IMAGES_BACKUP_DIR="${BACKUP_DIR}/images"
-CONTAINER_NAME="api-template"
+CONTAINER_NAME="template"
 
 # Fonction de logging
 log() {
@@ -143,15 +143,15 @@ restore_db() {
     log "🗄️  Restauration de la base de données..."
     
     # Variables d'environnement pour la DB
-    DB_HOST=${TYPEORM_HOST:-"api-template-db"}
+    DB_HOST=${TYPEORM_HOST:-"template-db"}
     DB_PORT=${TYPEORM_PORT:-"5432"}
     DB_NAME=${TYPEORM_DATABASE:-"fast_foodie_db"}
     DB_USER=${TYPEORM_USERNAME:-"postgres"}
     DB_PASSWORD=${TYPEORM_PASSWORD:-""}
     
     # Vérifier que le conteneur DB est en cours d'exécution
-    if ! docker ps | grep -q "api-template-db"; then
-        log "❌ Le conteneur api-template-db n'est pas en cours d'exécution"
+    if ! docker ps | grep -q "template-db"; then
+        log "❌ Le conteneur template-db n'est pas en cours d'exécution"
         exit 1
     fi
     
@@ -159,7 +159,7 @@ restore_db() {
     log "🛡️  Création d'une sauvegarde de sécurité..."
     SAFETY_BACKUP="${DB_BACKUP_DIR}/safety_backup_$(date +%Y%m%d_%H%M%S).sql"
     
-    docker exec -e PGPASSWORD="${DB_PASSWORD}" api-template-db pg_dump \
+    docker exec -e PGPASSWORD="${DB_PASSWORD}" template-db pg_dump \
         -U "${DB_USER}" \
         -d "${DB_NAME}" \
         --verbose \
@@ -176,7 +176,7 @@ restore_db() {
     # Effectuer la restauration
     log "🔄 Restauration de la base de données..."
     
-    if docker exec -i api-template-db psql \
+    if docker exec -i template-db psql \
         -U "${DB_USER}" \
         -d "postgres" \
         < "${BACKUP_PATH}"; then

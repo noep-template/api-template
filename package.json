@@ -1,5 +1,5 @@
 {
-  "name": "api-template",
+  "name": "template",
   "version": "0.0.1",
   "description": "Template API NestJS avec authentification, upload de fichiers et base de données PostgreSQL",
   "author": "",
