@@ -9,7 +9,7 @@ set -e
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 DB_BACKUP_DIR="${BACKUP_DIR}"
 IMAGES_BACKUP_DIR="${BACKUP_DIR}/images"
-CONTAINER_NAME="api-template-api"
+CONTAINER_NAME="api-template"
 
 # Fonction de logging
 log() {

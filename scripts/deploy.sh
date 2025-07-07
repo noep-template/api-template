@@ -99,7 +99,7 @@ deploy() {
     sleep 5
     
     echo "📋 Logs du conteneur API:"
-    docker logs api-template-api --tail 20 || echo "Impossible de récupérer les logs du conteneur API"
+    docker logs api-template --tail 20 || echo "Impossible de récupérer les logs du conteneur API"
     
     echo "📋 Logs du conteneur base de données:"
     docker logs api-template-db --tail 10 || echo "Impossible de récupérer les logs du conteneur DB"
@@ -111,7 +111,7 @@ health_check() {
     
     # Afficher les logs du conteneur API pour diagnostiquer
     echo "📋 Logs du conteneur API:"
-    docker logs api-template-api --tail 20 || echo "Impossible de récupérer les logs"
+    docker logs api-template --tail 20 || echo "Impossible de récupérer les logs"
     
     echo "📋 Logs du conteneur base de données:"
     docker logs api-template-db --tail 10 || echo "Impossible de récupérer les logs"
@@ -130,7 +130,7 @@ health_check() {
     
     echo "❌ L'application n'a pas démarré correctement"
     echo "📋 Logs finaux du conteneur API:"
-    docker logs api-template-api --tail 50 || echo "Impossible de récupérer les logs"
+    docker logs api-template --tail 50 || echo "Impossible de récupérer les logs"
     return 1
 }
 
