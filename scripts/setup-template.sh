@@ -106,6 +106,13 @@ if [ -f "docker-compose.api.yml" ]; then
     sed -i '' "s/template-api:${SHA}/${PROJECT_NAME}-api:${SHA}/g" docker-compose.api.yml
 fi
 
+# Mettre à jour docker-compose.yml (développement local)
+if [ -f "docker-compose.yml" ]; then
+    echo "🐳 Mise à jour docker-compose.yml..."
+    sed -i '' "s/template-db/${PROJECT_NAME}-db/g" docker-compose.yml
+    sed -i '' "s/template-api/${PROJECT_NAME}-api/g" docker-compose.yml
+fi
+
 # Mettre à jour les scripts
 echo "📜 Mise à jour des scripts..."
 find scripts/ -name "*.sh" -type f -exec sed -i '' "s/template-api/${PROJECT_NAME}-api/g" {} \;
