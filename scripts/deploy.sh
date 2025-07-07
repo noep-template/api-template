@@ -6,7 +6,7 @@ set -e
 echo "🚀 Démarrage du déploiement..."
 
 # Variables
-PROJECT_DIR="$HOME/api-template"
+PROJECT_DIR="$HOME/template"
 COMPOSE_FILE="$PROJECT_DIR/docker-compose.api.yml"
 BACKUP_DIR="$PROJECT_DIR/backups"
 

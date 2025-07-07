@@ -30,8 +30,8 @@ cat > "${CRON_SCRIPT}" << 'EOF'
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Répertoire du projet
-PROJECT_DIR="/home/noep/api-template"
-LOG_FILE="/home/noep/api-template/backup.log"
+PROJECT_DIR="/home/noep/template"
+LOG_FILE="/home/noep/template/backup.log"
 
 # Créer le répertoire de logs s'il n'existe pas
 mkdir -p "$(dirname "${LOG_FILE}")"
