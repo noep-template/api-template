@@ -63,8 +63,7 @@ export class FileUploadController {
           );
         }
 
-        const allowedExtensions =
-          /\.(jpg|jpeg|png|pdf|webp|heic|heif|gif|bmp|tiff|tif|svg)$/i;
+        const allowedExtensions = /\.(jpg|jpeg|png|pdf|webp|heic|heif|gif|bmp|tiff|tif|svg)$/i;
         const extension = allowedExtensions.exec(file.originalname || '');
         if (!extension) {
           return callback(
@@ -83,13 +82,10 @@ export class FileUploadController {
     this.logger.log(`Début du traitement de l'upload: ${file.originalname}`);
 
     const isImage =
-      file.mimetype.startsWith('image') ||
-      file.originalname.toLowerCase().match(/\.(heic|heif)$/);
+      file.mimetype.startsWith('image') || file.originalname.toLowerCase().match(/\.(heic|heif)$/);
 
     if (!isImage) {
-      this.logger.error(
-        `Fichier non reconnu comme image: ${file.originalname}`,
-      );
+      this.logger.error(`Fichier non reconnu comme image: ${file.originalname}`);
       throw new BadRequestException({
         message: errorMessage.api('media').INVALID_FORMAT,
       });
@@ -97,10 +93,7 @@ export class FileUploadController {
 
     try {
       // Validation rapide avec cache
-      const isValid = await this.imageOptimizer.validateImage(
-        file.buffer,
-        file.originalname,
-      );
+      const isValid = await this.imageOptimizer.validateImage(file.buffer, file.originalname);
 
       if (!isValid) {
         throw new BadRequestException({
@@ -111,30 +104,22 @@ export class FileUploadController {
       this.logger.log(`Optimisation de l'image: ${file.originalname}`);
 
       // Obtenir les métadonnées pour une optimisation intelligente
-      const metadata = await this.imageOptimizer.getImageMetadata(
-        file.buffer,
-        file.originalname,
-      );
+      const metadata = await this.imageOptimizer.getImageMetadata(file.buffer, file.originalname);
 
       // Déterminer si l'optimisation est nécessaire
       const shouldOptimize = this.optimizationConfig.shouldOptimize(
         file.buffer.length,
-        metadata.width,
-        metadata.height,
+        metadata.width ?? undefined,
+        metadata.height ?? undefined,
       );
 
       let optimizationOptions;
       if (shouldOptimize) {
         // Utiliser le profil optimal basé sur la taille
-        const optimalProfile = this.optimizationConfig.getOptimalProfile(
-          file.buffer.length,
-        );
-        optimizationOptions =
-          this.optimizationConfig.profileToOptions(optimalProfile);
+        const optimalProfile = this.optimizationConfig.getOptimalProfile(file.buffer.length);
+        optimizationOptions = this.optimizationConfig.profileToOptions(optimalProfile);
 
-        this.logger.log(
-          `Profil d'optimisation sélectionné: ${optimalProfile.name}`,
-        );
+        this.logger.log(`Profil d'optimisation sélectionné: ${optimalProfile.name}`);
       } else {
         // Pas d'optimisation nécessaire
         optimizationOptions = {
@@ -168,7 +153,7 @@ export class FileUploadController {
         await fs.mkdir(filesDir, { recursive: true });
         this.logger.log(`Dossier créé/vérifié: ${filesDir}`);
       } catch (error) {
-        this.logger.error(`Erreur création dossier: ${error.message}`);
+        this.logger.error(`Erreur création dossier`);
         throw new BadRequestException({
           message: errorMessage.api('media').NOT_CREATED,
         });
@@ -185,12 +170,10 @@ export class FileUploadController {
         size: compressedImageBuffer.length,
       });
 
-      this.logger.log(
-        `Upload terminé avec succès: ${finalFileName} (ID: ${media.id})`,
-      );
+      this.logger.log(`Upload terminé avec succès: ${finalFileName} (ID: ${media.id})`);
       return media;
     } catch (error) {
-      this.logger.error(`Erreur lors de l'upload: ${error.message}`);
+      this.logger.error(`Erreur lors de l'upload: ${(error as Error).message}`);
       throw new BadRequestException({
         message: errorMessage.api('media').INVALID_FORMAT,
       });

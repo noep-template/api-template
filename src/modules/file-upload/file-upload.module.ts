@@ -1,9 +1,4 @@
-import {
-  forwardRef,
-  MiddlewareConsumer,
-  Module,
-  RequestMethod,
-} from '@nestjs/common';
+import { forwardRef, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AuthMiddleware } from '../auth/auth.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { MediaModule } from '../media/media.module';
@@ -19,17 +14,9 @@ import { OptimizationConfigService } from './optimization-config.service';
     forwardRef(() => MediaModule),
     forwardRef(() => UserModule),
   ],
-  providers: [
-    FileUploadService,
-    ImageOptimizerService,
-    OptimizationConfigService,
-  ],
+  providers: [FileUploadService, ImageOptimizerService, OptimizationConfigService],
   controllers: [FileUploadController],
-  exports: [
-    FileUploadService,
-    ImageOptimizerService,
-    OptimizationConfigService,
-  ],
+  exports: [FileUploadService, ImageOptimizerService, OptimizationConfigService],
 })
 export class FileUploadModule {
   public configure(consumer: MiddlewareConsumer) {
@@ -37,7 +24,7 @@ export class FileUploadModule {
       .apply(AuthMiddleware)
       .forRoutes(
         { path: '/upload', method: RequestMethod.ALL },
-        { path: '/upload/*', method: RequestMethod.ALL },
+        { path: '/upload/*path', method: RequestMethod.ALL },
       );
   }
 }

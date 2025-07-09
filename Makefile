@@ -31,6 +31,7 @@ help:
 	@echo ""
 	@echo "🔧 Maintenance:"
 	@echo "  make migrate     - Exécuter les migrations"
+	@echo "  make migrate-run     - Exécuter les migrations"
 	@echo "  make migrate-gen - Générer une migration"
 	@echo "  make lint        - Linter le code"
 	@echo "  make format      - Formater le code"
@@ -160,6 +161,17 @@ restore:
 
 # Migrations
 migrate:
+	@echo "🔄 Exécution des migrations..."
+	@if [ -f "scripts/migrate.sh" ]; then \
+		chmod +x scripts/migrate.sh; \
+		./scripts/migrate.sh; \
+	else \
+		echo "❌ Script de migration non trouvé"; \
+		exit 1; \
+	fi
+
+# Exécution des migrations
+migrate-run:
 	@echo "🔄 Exécution des migrations..."
 	yarn migrate:run
 

@@ -5,21 +5,21 @@ import { Media } from '../media/media.entity';
 @Entity()
 export class User extends BaseEntity {
   @Column()
-  firstName: string;
+  firstName?: string;
 
   @Column({ nullable: true })
-  lastName: string;
+  lastName?: string;
 
   @Column({ nullable: true })
-  email: string;
+  email?: string;
 
   @Column({ nullable: true })
-  password: string;
+  password?: string;
 
-  @OneToOne(() => Media, { cascade: true, eager: true, nullable: true })
+  @OneToOne(() => Media, { cascade: true, eager: true, nullable: true, onDelete: 'SET NULL' })
   @JoinColumn()
-  profilePicture: Media;
+  profilePicture?: Media;
 
   @Column({ default: false })
-  isAdmin: boolean;
+  isAdmin?: boolean;
 }

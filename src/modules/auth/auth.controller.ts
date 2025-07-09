@@ -49,8 +49,7 @@ export class AuthController {
         abortEarly: false,
       });
       const user = await this.userService.getOneByEmail(body.email);
-      if (!user.isAdmin)
-        throw new NotFoundException(errorMessage.api('user').NOT_ADMIN);
+      if (!user?.isAdmin) throw new NotFoundException(errorMessage.api('user').NOT_ADMIN);
       return await this.authService.login(body);
     } catch (e) {
       throw new BadRequestException(e);

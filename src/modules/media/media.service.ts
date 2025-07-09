@@ -1,11 +1,11 @@
 import { errorMessage } from '@/errors';
 import { MediaDto, MediaType } from '@/types';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import { In, Repository } from 'typeorm';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import { Media } from './media.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class MediaService {
@@ -16,7 +16,7 @@ export class MediaService {
     private fileUploadService: FileUploadService,
   ) {}
 
-  formatMedia(media?: Media): MediaDto {
+  formatMedia(media?: Media): MediaDto | undefined {
     if (!media) return;
     return {
       id: media.id,
@@ -34,7 +34,7 @@ export class MediaService {
   }
 
   getFileExtension(filename: string): string {
-    return filename.split('.').pop();
+    return filename.split('.').pop() ?? '';
   }
 
   getUrlDomain(url: string): string {
@@ -44,7 +44,7 @@ export class MediaService {
   async getMedias(): Promise<MediaDto[]> {
     try {
       const medias = await this.mediaRepository.find();
-      return medias.map((media) => this.formatMedia(media));
+      return medias.map((media) => this.formatMedia(media)).filter(Boolean) as MediaDto[];
     } catch (e) {
       throw new BadRequestException(errorMessage.api('media').NOT_FOUND);
     }
@@ -55,6 +55,7 @@ export class MediaService {
       const media = await this.mediaRepository.findOneBy({
         id: _id,
       });
+      if (!media) throw new BadRequestException(errorMessage.api('media').NOT_FOUND, _id);
       return media;
     } catch (e) {
       throw new BadRequestException(errorMessage.api('media').NOT_FOUND, _id);
@@ -66,23 +67,19 @@ export class MediaService {
       const medias = await this.mediaRepository.findBy({
         id: In(ids),
       });
-      return medias.map((media) => this.formatMedia(media));
+      return medias.map((media) => this.formatMedia(media)).filter(Boolean) as MediaDto[];
     } catch (e) {
-      throw new BadRequestException(
-        errorMessage.api('media').NOT_FOUND,
-        ids.join(', '),
-      );
+      throw new BadRequestException(errorMessage.api('media').NOT_FOUND, ids.join(', '));
     }
   }
 
-  async getOneByIdOrReturnEmptyObject(
-    _id: string,
-  ): Promise<MediaDto | Record<string, never>> {
+  async getOneByIdOrReturnEmptyObject(_id: string): Promise<MediaDto | Record<string, never>> {
     try {
       const media = await this.mediaRepository.findOneBy({
         id: _id,
       });
-      return this.formatMedia(media);
+      if (!media) return {};
+      return this.formatMedia(media)!;
     } catch (e) {
       return {};
     }
@@ -90,8 +87,7 @@ export class MediaService {
 
   async createMedia(file: Express.Multer.File): Promise<MediaDto> {
     try {
-      if (!file)
-        throw new BadRequestException(errorMessage.api('file').UNDEFINED);
+      if (!file) throw new BadRequestException(errorMessage.api('file').UNDEFINED);
       const fileName = file.filename;
       const type = this.fileUploadService.detectFileType(file.filename);
       const media = await this.mediaRepository.save({
@@ -101,7 +97,7 @@ export class MediaService {
         type: type,
         size: file.size,
       });
-      return this.formatMedia(media);
+      return this.formatMedia(media)!;
     } catch (e) {
       console.log(e);
       throw new BadRequestException(errorMessage.api('media').NOT_CREATED);
@@ -128,6 +124,7 @@ export class MediaService {
       const media = await this.mediaRepository.findOneBy({
         id: _id,
       });
+      if (!media) throw new BadRequestException(errorMessage.api('media').NOT_FOUND, _id);
       await this.mediaRepository.delete(media.id);
       fs.unlinkSync(this.getLocalFilePathFromUrl(media.url));
     } catch (e) {

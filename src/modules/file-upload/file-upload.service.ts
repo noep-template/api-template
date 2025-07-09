@@ -1,15 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import { MediaType } from '@/types';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class FileUploadService {
   detectFileType(fileName: string): MediaType {
-    const fileExtension = fileName.split('.').pop().toLowerCase();
-    if (
-      fileExtension === 'png' ||
-      fileExtension === 'jpg' ||
-      fileExtension === 'jpeg'
-    )
+    const fileExtension = fileName?.split('.')?.pop()?.toLowerCase();
+    if (fileExtension === 'png' || fileExtension === 'jpg' || fileExtension === 'jpeg')
       return MediaType.IMAGE;
     else return MediaType.FILE;
   }

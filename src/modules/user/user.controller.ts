@@ -32,25 +32,33 @@ export class UserController {
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
   async me(@GetCurrentUser() user: User): Promise<UserDto> {
-    return this.service.formatUser(user);
+    const formattedUser = this.service.formatUser(user);
+    if (!formattedUser) {
+      throw new BadRequestException(errorMessage.api('user').NOT_FOUND);
+    }
+    return formattedUser;
   }
 
   @Patch('me')
   @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async update(
-    @Body() body: UpdateUserApi,
-    @GetCurrentUser() user: User,
-  ): Promise<UserDto> {
+  async update(@Body() body: UpdateUserApi, @GetCurrentUser() user: User): Promise<UserDto> {
     try {
       await userValidation.update.validate(body, {
         abortEarly: false,
       });
       const userUpdated = await this.service.updateUser(body, user.id);
-      return this.service.formatUser(userUpdated);
+      const formattedUser = this.service.formatUser(userUpdated);
+      if (!formattedUser) {
+        throw new BadRequestException(errorMessage.api('user').NOT_FOUND);
+      }
+      return formattedUser;
     } catch (e) {
-      throw new BadRequestException(e.errors);
+      if (e && typeof e === 'object' && 'errors' in e) {
+        throw new BadRequestException((e as any).errors);
+      }
+      throw new BadRequestException(e);
     }
   }
 
@@ -66,14 +74,10 @@ export class UserController {
   @HttpCode(204)
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  async deleteUserById(
-    @GetCurrentUser() user: User,
-    @Param('id') id: string,
-  ): Promise<void> {
+  async deleteUserById(@GetCurrentUser() user: User, @Param('id') id: string): Promise<void> {
     try {
       const possibleUser = await this.service.getOneById(id);
-      if (!possibleUser)
-        throw new BadRequestException(errorMessage.api('user').NOT_FOUND);
+      if (!possibleUser) throw new BadRequestException(errorMessage.api('user').NOT_FOUND);
       this.service.deleteUser(id);
     } catch (e) {
       throw new BadRequestException(e);
@@ -94,9 +98,16 @@ export class UserController {
         abortEarly: false,
       });
       const userUpdated = await this.service.updateUser(body, id);
-      return this.service.formatUser(userUpdated);
+      const formattedUser = this.service.formatUser(userUpdated);
+      if (!formattedUser) {
+        throw new BadRequestException(errorMessage.api('user').NOT_FOUND);
+      }
+      return formattedUser;
     } catch (e) {
       console.log(e);
+      if (e && typeof e === 'object' && 'errors' in e) {
+        throw new BadRequestException((e as any).errors);
+      }
       throw new BadRequestException(e);
     }
   }

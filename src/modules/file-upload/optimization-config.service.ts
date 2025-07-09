@@ -78,13 +78,13 @@ export class OptimizationConfigService {
     const fileSizeMB = fileSizeBytes / (1024 * 1024);
 
     if (fileSizeMB < 0.5) {
-      return this.profiles.get('small');
+      return this.profiles.get('small')!;
     } else if (fileSizeMB < 2) {
-      return this.profiles.get('medium');
+      return this.profiles.get('medium')!;
     } else if (fileSizeMB < 10) {
-      return this.profiles.get('large');
+      return this.profiles.get('large')!;
     } else {
-      return this.profiles.get('original');
+      return this.profiles.get('original')!;
     }
   }
 
@@ -124,11 +124,7 @@ export class OptimizationConfigService {
   /**
    * Détermine si une image doit être optimisée selon sa taille
    */
-  shouldOptimize(
-    fileSizeBytes: number,
-    originalWidth?: number,
-    originalHeight?: number,
-  ): boolean {
+  shouldOptimize(fileSizeBytes: number, originalWidth?: number, originalHeight?: number): boolean {
     const fileSizeMB = fileSizeBytes / (1024 * 1024);
 
     // Toujours optimiser les gros fichiers
@@ -149,10 +145,7 @@ export class OptimizationConfigService {
   /**
    * Calcule le ratio de compression estimé
    */
-  estimateCompressionRatio(
-    originalSize: number,
-    profile: OptimizationProfile,
-  ): number {
+  estimateCompressionRatio(originalSize: number, profile: OptimizationProfile): number {
     const qualityFactor = profile.quality / 100;
     const sizeFactor = (profile.width * profile.height) / (1920 * 1080); // Référence Full HD
 

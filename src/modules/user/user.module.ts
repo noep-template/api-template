@@ -1,9 +1,4 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  RequestMethod,
-  forwardRef,
-} from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../auth/auth.middleware';
 import { AuthModule } from '../auth/auth.module';
@@ -28,7 +23,7 @@ export class UserModule {
       .apply(AuthMiddleware)
       .forRoutes(
         { path: '/users', method: RequestMethod.ALL },
-        { path: '/users/*', method: RequestMethod.ALL },
+        { path: '/users/*path', method: RequestMethod.ALL },
       );
   }
 }

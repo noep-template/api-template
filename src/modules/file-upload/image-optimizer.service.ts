@@ -1,6 +1,6 @@
 import { errorMessage } from '@/errors';
 import { Injectable, Logger } from '@nestjs/common';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 
 export interface ImageOptimizationOptions {
   width?: number;
@@ -64,24 +64,13 @@ export class ImageOptimizerService {
     options: ImageOptimizationOptions = {},
     filename?: string,
   ): Promise<Buffer> {
-    const {
-      width = 800,
-      height = 800,
-      quality = 80,
-      format = 'webp',
-    } = options;
+    const { width = 800, height = 800, quality = 80, format = 'webp' } = options;
 
-    this.logger.log(
-      `Optimisation de l'image: ${filename || 'unknown'} (${
-        buffer.length
-      } bytes)`,
-    );
+    this.logger.log(`Optimisation de l'image: ${filename || 'unknown'} (${buffer.length} bytes)`);
 
     // Si c'est un HEIC, on le garde tel quel sans conversion
     if (filename && this.isHeicByFilename(filename)) {
-      this.logger.log(
-        `Fichier HEIC détecté - conservation du format original: ${filename}`,
-      );
+      this.logger.log(`Fichier HEIC détecté - conservation du format original: ${filename}`);
       return buffer; // Retourner le buffer original sans modification
     }
 
@@ -154,7 +143,7 @@ export class ImageOptimizerService {
       );
       return result;
     } catch (error) {
-      this.logger.error(`Erreur lors de l'optimisation: ${error.message}`);
+      this.logger.error(`Erreur lors de l'optimisation: ${(error as Error).message}`);
       throw new Error(errorMessage.api('media').INVALID_FORMAT);
     }
   }
@@ -162,11 +151,7 @@ export class ImageOptimizerService {
   /**
    * Génère une vignette pour les aperçus
    */
-  async generateThumbnail(
-    buffer: Buffer,
-    size: number = 200,
-    filename?: string,
-  ): Promise<Buffer> {
+  async generateThumbnail(buffer: Buffer, size: number = 200, filename?: string): Promise<Buffer> {
     // Si c'est un HEIC, on le garde tel quel
     if (filename && this.isHeicByFilename(filename)) {
       return buffer; // Retourner le buffer original
@@ -305,9 +290,7 @@ export class ImageOptimizerService {
     }>,
   ): Promise<Buffer[]> {
     return Promise.all(
-      images.map(({ buffer, options, filename }) =>
-        this.optimizeImage(buffer, options, filename),
-      ),
+      images.map(({ buffer, options, filename }) => this.optimizeImage(buffer, options, filename)),
     );
   }
 }

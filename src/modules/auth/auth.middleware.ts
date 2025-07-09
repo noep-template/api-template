@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NestMiddleware,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { UserService } from '../user/user.service';
@@ -12,6 +8,9 @@ export class AuthMiddleware implements NestMiddleware {
   constructor(private readonly userRepository: UserService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
+    if (!process.env.JWT_SECRET) {
+      throw new UnauthorizedException('JWT_SECRET is not defined');
+    }
     const authHeaders = req.headers.authorization;
     if (authHeaders && (authHeaders as string).split(' ')[1]) {
       try {
